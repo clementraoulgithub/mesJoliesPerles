@@ -28,13 +28,13 @@ export default function App() {
             <img className="dash-logo" src="/marque/logo.jpeg" alt="" />
             <div>
               <h1 id="h-intro" className="dash-name">Les Jolies Perles</h1>
-              <p className="dash-tag">La passion, la création</p>
+              <p className="dash-tag">La passion, la création · depuis 2017</p>
             </div>
           </div>
           {/* Résumé des descriptions Un grand marché, Etsy et de la bio Instagram */}
           <p className="dash-lead">
-            Créatrice de bijoux fantaisie originaux et colorés, faits main à Nantes. Je réalise aussi vos bijoux
-            sur commande, sans supplément de prix.
+            Je confectionne depuis 2017 des bijoux fantaisie originaux et colorés, faits main à Nantes.
+            Je réalise aussi vos bijoux sur commande, sans supplément de prix.
           </p>
           <ul className="dash-features">
             <li><Icon name="sparkle" size={16} />Fait main</li>
