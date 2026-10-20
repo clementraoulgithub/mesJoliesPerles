@@ -7,7 +7,7 @@ const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean)
 export type IconName =
   | 'arrow-up-right' | 'chevron-left' | 'chevron-right' | 'star' | 'heart'
   | 'pin' | 'clock' | 'calendar' | 'menu' | 'close' | 'bag' | 'chat'
-  | 'truck' | 'shield' | 'gift' | 'sparkle' | 'flag' | 'quote';
+  | 'truck' | 'shield' | 'gift' | 'sparkle' | 'flag' | 'quote' | 'trophy';
 
 const ICON_PATHS: Record<IconName, string> = {
   'arrow-up-right': 'M7 17 17 7M8 7h9v9',
@@ -27,6 +27,7 @@ const ICON_PATHS: Record<IconName, string> = {
   gift: 'M4.5 11h15v9h-15zM3.5 7.5h17V11h-17zM12 7.5V20M12 7.5C10.5 4.5 7 4.5 7 6.2S10 7.5 12 7.5zM12 7.5c1.5-3 5-3 5-1.3S14 7.5 12 7.5z',
   sparkle: 'M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9zM18.5 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
   flag: 'M5 21V4M5 4.5h12l-2.5 4 2.5 4H5',
+  trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1.5A3.5 3.5 0 0 0 8.5 11M16 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 13v4M8.5 20h7M9.5 17h5v3h-5z',
   quote: 'M9.5 7C6.5 8 5 10.5 5 14v3h4.5v-4.5H7c0-2.2 1-3.6 3-4.3zM18.5 7c-3 1-4.5 3.5-4.5 7v3h4.5v-4.5H16c0-2.2 1-3.6 3-4.3z',
 };
 

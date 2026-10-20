@@ -102,6 +102,7 @@ body { margin: 0; background: var(--nacre); }
 .dash-panel-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); flex-wrap: wrap; }
 .dash-h { margin: 0; display: flex; align-items: center; gap: var(--space-3); font: 600 26px/30px var(--font-display); }
 .dash-h-icon { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--corail-soft); color: var(--corail-ink); }
+.dash-h-gold { background: var(--laiton-soft); color: var(--laiton-ink); }
 .dash-h-insta { color: #fff; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
 .dash-text { margin: 0; font-size: 15px; line-height: 24px; color: var(--ink-muted); }
 .dash-muted { font-size: 14px; line-height: 20px; }

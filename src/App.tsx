@@ -175,7 +175,7 @@ function TopsPanel() {
   return (
     <section className="dash-tops" aria-labelledby="h-tops">
       <div className="dash-panel-head">
-        <h2 id="h-tops" className="dash-h">Tops ventes</h2>
+        <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="trophy" size={18} /></span>Tops ventes</h2>
         <div className="jp-chips" role="group" aria-label="Boutique">
           {([['etsy', 'Etsy'], ['ugm', 'Un grand marché']] as const).map(([k, l]) => (
             <button key={k} type="button" className="jp-chip" aria-pressed={shop === k} onClick={() => setShop(k)}>
