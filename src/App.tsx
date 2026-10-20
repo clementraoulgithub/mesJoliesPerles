@@ -29,7 +29,7 @@ export default function App() {
             <img className="dash-logo" src="/marque/logo.jpeg" alt="" />
             <div>
               <h1 id="h-intro" className="dash-name">Les-jolies-perles</h1>
-              <p className="dash-tag">La passion, la création · depuis 2017</p>
+              <p className="dash-tag">La passion, la création</p>
             </div>
           </div>
           {/* Résumé des descriptions Un grand marché, Etsy et de la bio Instagram */}
