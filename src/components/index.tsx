@@ -6,7 +6,8 @@ const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean)
 
 export type IconName =
   | 'arrow-up-right' | 'chevron-left' | 'chevron-right' | 'star' | 'heart'
-  | 'pin' | 'clock' | 'calendar' | 'menu' | 'close' | 'bag' | 'chat';
+  | 'pin' | 'clock' | 'calendar' | 'menu' | 'close' | 'bag' | 'chat'
+  | 'truck' | 'shield' | 'gift' | 'sparkle' | 'flag' | 'quote';
 
 const ICON_PATHS: Record<IconName, string> = {
   'arrow-up-right': 'M7 17 17 7M8 7h9v9',
@@ -21,6 +22,12 @@ const ICON_PATHS: Record<IconName, string> = {
   close: 'M6 6l12 12M18 6 6 18',
   bag: 'M5 8h14l-1 12H6zM9 8V6.5a3 3 0 0 1 6 0V8',
   chat: 'M5 5h14v10H10l-4 4v-4H5z',
+  truck: 'M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3v3h-7M6.5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  shield: 'M12 3l7 3v5.5c0 4.3-3 7.6-7 9.5-4-1.9-7-5.2-7-9.5V6zM9 12l2 2 4-4',
+  gift: 'M4.5 11h15v9h-15zM3.5 7.5h17V11h-17zM12 7.5V20M12 7.5C10.5 4.5 7 4.5 7 6.2S10 7.5 12 7.5zM12 7.5c1.5-3 5-3 5-1.3S14 7.5 12 7.5z',
+  sparkle: 'M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9zM18.5 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
+  flag: 'M5 21V4M5 4.5h12l-2.5 4 2.5 4H5',
+  quote: 'M9.5 7C6.5 8 5 10.5 5 14v3h4.5v-4.5H7c0-2.2 1-3.6 3-4.3zM18.5 7c-3 1-4.5 3.5-4.5 7v3h4.5v-4.5H16c0-2.2 1-3.6 3-4.3z',
 };
 
 export interface IconProps { name: IconName; size?: number; filled?: boolean; className?: string; title?: string }
@@ -491,7 +498,7 @@ export function Rating({ value, outOf = 5, size = 16 }: RatingProps) {
   );
 }
 
-export interface Review { id: string; rating: number; text: string; author: string; date?: string; product?: string; source?: string }
+export interface Review { id: string; rating: number; text: string; author: string; date?: string; product?: string; source?: string; imageSrc?: string; href?: string }
 export interface ReviewCardProps extends Review {}
 /** Avis client : étoiles, citation en italique, auteur, produit et provenance. */
 export function ReviewCard({ rating, text, author, date, product, source }: ReviewCardProps) {

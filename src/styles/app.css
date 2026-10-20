@@ -44,20 +44,26 @@ body { margin: 0; background: var(--nacre); }
   background: radial-gradient(120% 90% at 100% 0%, #4a2f2a 0%, var(--ink) 60%);
 }
 .dash-intro > * { flex-shrink: 0; }
+.dash-intro { container-type: inline-size; }
 .dash-brand { display: flex; align-items: center; gap: var(--space-4); }
-.dash-logo { width: 64px; height: 64px; border-radius: var(--radius-pill); object-fit: cover; flex: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14); }
-.dash-name { margin: 0; font: 500 40px/42px var(--font-display); letter-spacing: -0.01em; }
+.dash-brand > div { flex: 1; min-width: 0; }
+.dash-logo { width: clamp(48px, 16cqi, 64px); height: clamp(48px, 16cqi, 64px); border-radius: var(--radius-pill); object-fit: cover; flex: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14); }
+.dash-name { margin: 0; font: 500 clamp(26px, 10cqi, 42px)/1.05 var(--font-display); letter-spacing: -0.01em; white-space: nowrap; }
 .dash-tag { margin: 2px 0 0; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #f0b9c5; }
-.dash-lead { margin: 0; font-size: 15px; line-height: 24px; color: rgba(251, 247, 241, 0.78); }
+.dash-lead { margin: 0; font-size: 15px; line-height: 24px; color: rgba(251, 247, 241, 0.8); }
+.dash-features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-4); font-size: 13px; line-height: 18px; }
+.dash-features li { display: flex; align-items: center; gap: var(--space-2); min-width: 0; white-space: nowrap; }
+.dash-features .jp-icon { flex: none; width: 28px; height: 28px; padding: 6px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.08); color: #f0b9c5; }
 .dash-stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255, 255, 255, 0.14); border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
 .dash-stats div { padding: var(--space-3) 0; }
 .dash-stats div + div { padding-left: var(--space-4); border-left: 1px solid rgba(255, 255, 255, 0.14); }
 .dash-stats dt { font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(251, 247, 241, 0.6); }
 .dash-stats dd { margin: 0; display: flex; align-items: center; gap: var(--space-1); font: 500 30px/36px var(--font-display); white-space: nowrap; }
 .dash-stats dd .jp-icon { color: #e3b75e; }
-.dash-shops { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--space-3); }
+.dash-shops { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .dash-shop { display: flex; align-items: center; gap: var(--space-2) var(--space-3); min-height: 56px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); text-decoration: none; font-size: 15px; font-weight: 600; line-height: 20px; transition: transform .15s, box-shadow .15s, background-color .15s; }
-.dash-shop span { display: flex; flex-direction: column; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-shop { flex: 1 1 auto; }
+.dash-shop span { display: flex; flex-direction: column; white-space: nowrap; }
 .dash-shop small { font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
 .dash-shop:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
 .dash-shop:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
@@ -65,9 +71,9 @@ body { margin: 0; background: var(--nacre); }
 .dash-shop-ugm { background: var(--nacre); color: var(--ink); }
 .dash-shop-ugm .jp-brand-ugm { border-radius: var(--radius-pill); }
 .dash-socials { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--space-2); }
-.dash-socials a { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--radius-pill); color: var(--nacre); background: rgba(255, 255, 255, 0.08); transition: background-color .15s; }
-.dash-socials a:hover { background: var(--corail); }
-.dash-socials a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.dash-socials a { width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--radius-pill); color: var(--ink); background: var(--sable); transition: background-color .15s, color .15s; }
+.dash-socials a:hover { background: var(--corail); color: #fff; }
+.dash-socials a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* Tops ventes : 2 produits côte à côte, sur fond sable */
 .dash-tops { display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; padding: var(--space-6); background: var(--sable); border-radius: var(--radius-lg); }
@@ -106,11 +112,29 @@ body { margin: 0; background: var(--nacre); }
 /* Avis : carrousel automatique */
 .dash-score { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--ink-muted); }
 .dash-score b { font: 600 24px/1 var(--font-display); color: var(--ink); }
-.dash-quote { margin: 0; min-height: 0; display: flex; flex-direction: column; gap: var(--space-2); animation: dash-fade .5s ease; }
-.dash-quote blockquote { margin: 0; font: italic 500 21px/29px var(--font-display); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.dash-quote figcaption { font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 @keyframes dash-fade { from { opacity: 0; transform: translateY(6px); } }
 .dash-dots { display: flex; align-items: center; gap: var(--space-2); }
+.dash-arrow { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--nacre-raised); color: var(--ink); cursor: pointer; }
+.dash-arrow:first-child { margin-right: var(--space-1); }
+.dash-arrow:last-child { margin-left: var(--space-1); }
+.dash-arrow:hover { border-color: var(--corail); color: var(--corail-ink); }
+.dash-arrow:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Carte d'avis : photo du bijou + citation */
+.dash-review { margin: 0; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(84px, 32%) 1fr; gap: var(--space-4); padding: var(--space-3); background: var(--nacre-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); animation: dash-fade .5s ease; }
+.dash-review-media { display: block; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
+.dash-review-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.dash-review-media:hover img { transform: scale(1.05); }
+.dash-review-body { position: relative; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; min-height: 0; padding: var(--space-2) var(--space-1) 0 0; }
+.dash-review-body::before { content: "\201C"; position: absolute; right: 0; top: -14px; font: 600 72px/1 var(--font-display); color: var(--corail); opacity: .18; pointer-events: none; }
+.dash-review blockquote { margin: 0; font: italic 500 18px/25px var(--font-display); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.dash-review figcaption { margin-top: auto; display: flex; align-items: center; gap: var(--space-2); font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+.dash-review figcaption > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.dash-review figcaption > span:nth-child(2) > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-review figcaption b { font-size: 14px; line-height: 18px; color: var(--ink); }
+.dash-review .jp-avatar { width: 32px; height: 32px; font-size: 16px; }
+.dash-review .jp-rating { vertical-align: -1px; }
+.dash-review-src { flex: none; }
 .dash-dot { position: relative; width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--line-strong); opacity: .5; cursor: pointer; overflow: hidden; transition: width .3s, opacity .3s; }
 .dash-dot.is-on { width: 32px; opacity: 1; background: var(--line); }
 .dash-dot.is-on:not(:has(i)) { background: var(--corail); }
@@ -129,8 +153,8 @@ body { margin: 0; background: var(--nacre); }
 .dash-event-meta { font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 
 /* Instagram : 3 vignettes carrées */
-.dash-thumbs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.dash-thumbs li { aspect-ratio: 1; min-height: 0; }
+.dash-thumbs { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; display: grid; gap: var(--space-2); grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.dash-thumbs li { min-height: 0; }
 .dash-thumbs li, .dash-thumbs a { display: block; height: 100%; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
 .dash-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
 .dash-thumbs a:hover img { transform: scale(1.05); }
@@ -144,29 +168,31 @@ body { margin: 0; background: var(--nacre); }
 
 /* Écrans moyens */
 @media (max-width: 1180px) and (min-width: 901px) {
-  .dash-main { gap: var(--space-6) var(--space-8); padding: var(--space-6); }
-  .dash-main { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .dash-main { gap: var(--space-6) var(--space-8); padding: var(--space-6); grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr); }
   .dash-intro { padding: var(--space-6); }
-  .dash-name { font-size: 32px; line-height: 36px; }
   .dash-lead { display: none; }
+  .dash-intro { gap: var(--space-3); }
+  .dash-features { gap: var(--space-2) var(--space-3); font-size: 12px; line-height: 15px; }
+  .dash-features li { white-space: normal; }
+  .dash-features .jp-icon { width: 24px; height: 24px; padding: 4px; }
   .dash-stats dd { font-size: 24px; line-height: 30px; }
   .dash-shop { min-height: 48px; }
   .dash-tops { padding: var(--space-4); }
   .dash-products { gap: var(--space-4); }
-  .dash-quote blockquote { font-size: 19px; line-height: 26px; }
   .dash-events li:nth-child(3) { display: none; }
+  .dash-review blockquote { -webkit-line-clamp: 3; font-size: 16px; line-height: 22px; }
 }
 
 /* Écrans peu hauts */
 @media (max-height: 760px) and (min-width: 901px) {
   .dash-main { padding-top: var(--space-6); padding-bottom: var(--space-6); row-gap: var(--space-6); }
   .dash-intro { gap: var(--space-3); padding: var(--space-6); }
-  .dash-name { font-size: 34px; line-height: 38px; }
   .dash-lead { display: none; }
   .dash-stats dd { font-size: 26px; line-height: 30px; }
+  .dash-features .jp-icon { width: 24px; height: 24px; padding: 4px; }
   .dash-panel { padding-top: var(--space-4); gap: var(--space-3); }
-  .dash-quote blockquote { -webkit-line-clamp: 3; font-size: 18px; line-height: 25px; }
   .dash-events li:nth-child(3) { display: none; }
+  .dash-review blockquote { -webkit-line-clamp: 3; font-size: 16px; line-height: 22px; }
 }
 
 /* Tablette en hauteur et téléphone : les blocs s'empilent, la page défile, les boutons d'achat restent en bas */
@@ -176,12 +202,12 @@ body { margin: 0; background: var(--nacre); }
   .dash-intro { padding: var(--space-6); }
   .dash-name { font-size: 32px; line-height: 36px; }
   .dash-intro .dash-shops { display: none; }
+  .dash-features li { white-space: normal; }
   .dash-tops { padding: var(--space-4); }
   .dash-products { gap: var(--space-4); }
   .dash-product-media { flex: none; aspect-ratio: 1; }
   .dash-product-name { font-size: 14px; }
-  .dash-quote { min-height: 150px; }
-  .dash-bottom { display: flex; gap: var(--space-3); position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--nacre); }
+    .dash-bottom { display: flex; gap: var(--space-3); position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--nacre); }
   .dash-bottom .dash-shop { flex: 1; justify-content: center; min-height: 48px; }
   .dash-bottom .dash-shop span { flex: none; }
   .dash-bottom .dash-shop-ugm { border: 1px solid var(--line-strong); }

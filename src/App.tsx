@@ -6,7 +6,7 @@ import { useMarkets } from './hooks/useMarkets';
 import { ETSY, UGM } from './data/shops';
 import { topEtsy, topUgm } from './data/products';
 import { markets } from './data/markets';
-import { INSTAGRAM, instagramFeedUrl, socials } from './data/social';
+import { instagramFeedUrl, socials } from './data/social';
 import { reviews, reviewsSummary } from './data/reviews';
 
 const MONTHS_SHORT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
@@ -28,13 +28,20 @@ export default function App() {
             <img className="dash-logo" src="/marque/logo.jpeg" alt="" />
             <div>
               <h1 id="h-intro" className="dash-name">Les Jolies Perles</h1>
-              <p className="dash-tag">Bijoux faits main · Nantes</p>
+              <p className="dash-tag">La passion, la création</p>
             </div>
           </div>
+          {/* Résumé des descriptions Un grand marché, Etsy et de la bio Instagram */}
           <p className="dash-lead">
-            Des bijoux originaux et colorés, montés à la main en petites séries : créoles en perles de résine,
-            pendentifs en acétate, fleurs, coquillages. Sur commande sans supplément, envoi soigné.
+            Créatrice de bijoux fantaisie originaux et colorés, faits main à Nantes. Je réalise aussi vos bijoux
+            sur commande, sans supplément de prix.
           </p>
+          <ul className="dash-features">
+            <li><Icon name="sparkle" size={16} />Fait main</li>
+            <li><Icon name="flag" size={16} />Made in France</li>
+            <li><Icon name="truck" size={16} />Envoi soigné et suivi</li>
+            <li><Icon name="shield" size={16} />Satisfait ou remboursé</li>
+          </ul>
           <dl className="dash-stats">
             <div><dt>Note</dt><dd>{reviewsSummary.average.toFixed(1).replace('.', ',')}<Icon name="star" size={16} filled /></dd></div>
             <div><dt>Ventes</dt><dd>1 900+</dd></div>
@@ -48,15 +55,6 @@ export default function App() {
               <BrandIcon brand="ungrandmarche" size={28} /><span><small>Acheter sur</small>Un grand marché</span>
             </a>
           </div>
-          <ul className="dash-socials" aria-label="Réseaux sociaux">
-            {socials.map(l => (
-              <li key={l.href}>
-                <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={BRAND_LABEL[l.network as 'instagram']}>
-                  <BrandIcon brand={l.network as 'instagram'} size={18} />
-                </a>
-              </li>
-            ))}
-          </ul>
         </section>
 
         <TopsPanel />
@@ -66,20 +64,28 @@ export default function App() {
         <section className="dash-panel dash-agenda" aria-labelledby="h-agenda">
           <div className="dash-panel-head">
             <h2 id="h-agenda" className="dash-h"><span className="dash-h-icon"><Icon name="calendar" size={18} /></span>Prochains marchés</h2>
-            <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}>Voir le calendrier</button>
+            <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}><Icon name="calendar" size={15} />Calendrier</button>
           </div>
           <NextMarkets events={agenda.events} />
         </section>
 
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
           <div className="dash-panel-head">
-            <h2 id="h-insta" className="dash-h"><span className="dash-h-icon dash-h-insta"><BrandIcon brand="instagram" size={18} /></span>Instagram</h2>
-            <a className="dash-link" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">@les_joliesperles <Icon name="arrow-up-right" size={14} /></a>
+            <h2 id="h-insta" className="dash-h"><span className="dash-h-icon dash-h-insta"><BrandIcon brand="instagram" size={18} /></span>Suivez-nous</h2>
+            <ul className="dash-socials" aria-label="Réseaux sociaux">
+              {socials.map(l => (
+                <li key={l.href}>
+                  <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={BRAND_LABEL[l.network as 'instagram'] + ' : ' + l.handle}>
+                    <BrandIcon brand={l.network as 'instagram'} size={16} />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
           {instagram.posts.length > 0
             ? (
               <ul className="dash-thumbs">
-                {instagram.posts.slice(0, 3).map(p => (
+                {instagram.posts.slice(0, 6).map(p => (
                   <li key={p.id}>
                     <a href={p.href} target="_blank" rel="noopener noreferrer" title={p.caption}>
                       {p.imageSrc && <img src={p.imageSrc} alt={p.caption} loading="lazy" />}
@@ -134,18 +140,34 @@ function ReviewsCarousel() {
           <span>{reviewsSummary.count} avis</span>
         </span>
       </div>
-      <figure key={r.id} className="dash-quote" aria-live={playing ? 'off' : 'polite'}
+      <figure key={r.id} className="dash-review" aria-live={playing ? 'off' : 'polite'}
         aria-roledescription="avis" aria-label={`${i + 1} sur ${reviews.length}`}>
-        <blockquote>« {r.text} »</blockquote>
-        <figcaption>{r.author} · {[r.product, r.source].filter(Boolean).join(', ')}</figcaption>
+        {r.imageSrc && (
+          <a className="dash-review-media" href={r.href} target="_blank" rel="noopener noreferrer" aria-label={'Voir ' + r.product}>
+            <img src={r.imageSrc} alt="" />
+          </a>
+        )}
+        <div className="dash-review-body">
+          <blockquote>{r.text}</blockquote>
+          <figcaption>
+            <span className="jp-avatar" aria-hidden="true">{r.author.charAt(0)}</span>
+            <span>
+              <b>{r.author}</b>
+              <span><Rating value={r.rating} size={12} /> {[r.product, r.date].filter(Boolean).join(' · ')}</span>
+            </span>
+            <BrandIcon brand="ungrandmarche" size={26} className="dash-review-src" />
+          </figcaption>
+        </div>
       </figure>
       <div className="dash-dots" role="group" aria-label="Choisir un avis">
+        <button type="button" className="dash-arrow" onClick={() => setI(x => (x - 1 + reviews.length) % reviews.length)} aria-label="Avis précédent"><Icon name="chevron-left" size={16} /></button>
         {reviews.map((x, n) => (
           <button key={x.id} type="button" className={'dash-dot' + (n === i ? ' is-on' : '')}
             aria-label={`Avis ${n + 1}`} aria-current={n === i || undefined} onClick={() => setI(n)}>
             {n === i && playing && <i style={{ animationDuration: REVIEW_DELAY + 'ms' }} />}
           </button>
         ))}
+        <button type="button" className="dash-arrow" onClick={() => setI(x => (x + 1) % reviews.length)} aria-label="Avis suivant"><Icon name="chevron-right" size={16} /></button>
       </div>
     </section>
   );
