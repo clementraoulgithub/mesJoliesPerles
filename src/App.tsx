@@ -71,7 +71,7 @@ export default function App() {
 
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
           <div className="dash-panel-head">
-            <h2 id="h-insta" className="dash-h"><span className="dash-h-icon dash-h-insta"><BrandIcon brand="instagram" size={18} /></span>Suivez-nous</h2>
+            <h2 id="h-insta" className="dash-h"><span className="dash-h-icon dash-h-insta"><BrandIcon brand="instagram" size={18} /></span>Suivez-moi</h2>
             <ul className="dash-socials" aria-label="Réseaux sociaux">
               {socials.map(l => (
                 <li key={l.href}>
@@ -112,26 +112,21 @@ export default function App() {
 
 const REVIEW_DELAY = 6000;
 
-/** Avis qui défilent seuls toutes les 6 s ; pause au survol ou au clavier, et arrêt si l'utilisateur limite les animations. */
+/** Avis qui défilent seuls toutes les 6 s, pause au survol. Le minuteur repart à chaque changement d'avis. */
 function ReviewsCarousel() {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
-  const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const playing = !paused && !reduced;
 
   useEffect(() => {
-    if (!playing) return;
-    const t = window.setInterval(() => {
-      if (!document.hidden) setI(x => (x + 1) % reviews.length);
-    }, REVIEW_DELAY);
-    return () => window.clearInterval(t);
-  }, [playing]);
+    if (paused) return;
+    const t = window.setTimeout(() => setI(x => (x + 1) % reviews.length), REVIEW_DELAY);
+    return () => window.clearTimeout(t);
+  }, [i, paused]);
 
   const r = reviews[i];
   return (
     <section className="dash-panel dash-reviews" aria-labelledby="h-reviews" aria-roledescription="carrousel"
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="dash-panel-head">
         <h2 id="h-reviews" className="dash-h"><span className="dash-h-icon"><Icon name="star" size={18} filled /></span>Vos avis</h2>
         <span className="dash-score">
@@ -140,7 +135,7 @@ function ReviewsCarousel() {
           <span>{reviewsSummary.count} avis</span>
         </span>
       </div>
-      <figure key={r.id} className="dash-review" aria-live={playing ? 'off' : 'polite'}
+      <figure key={r.id} className="dash-review" aria-live="off"
         aria-roledescription="avis" aria-label={`${i + 1} sur ${reviews.length}`}>
         {r.imageSrc && (
           <a className="dash-review-media" href={r.href} target="_blank" rel="noopener noreferrer" aria-label={'Voir ' + r.product}>
@@ -164,7 +159,7 @@ function ReviewsCarousel() {
         {reviews.map((x, n) => (
           <button key={x.id} type="button" className={'dash-dot' + (n === i ? ' is-on' : '')}
             aria-label={`Avis ${n + 1}`} aria-current={n === i || undefined} onClick={() => setI(n)}>
-            {n === i && playing && <i style={{ animationDuration: REVIEW_DELAY + 'ms' }} />}
+            {n === i && !paused && <i key={i} style={{ animationDuration: REVIEW_DELAY + 'ms' }} />}
           </button>
         ))}
         <button type="button" className="dash-arrow" onClick={() => setI(x => (x + 1) % reviews.length)} aria-label="Avis suivant"><Icon name="chevron-right" size={16} /></button>
@@ -211,30 +206,78 @@ function TopsPanel() {
   );
 }
 
-/** Les 3 prochains marchés ; à défaut, les 3 derniers passés. */
+const DAY_MS = 86_400_000;
+const WEEKDAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const weekday = (iso: string) => WEEKDAYS[new Date(iso + 'T12:00:00').getDay()];
+const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / DAY_MS);
+const mapsUrl = (e: MarketEvent) =>
+  'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([e.place, e.city].filter(Boolean).join(', '));
+
+/** « Aujourd'hui », « Demain », « Dans 5 jours »… */
+function countdown(e: MarketEvent, now: string) {
+  if (e.date <= now) return 'En ce moment';
+  const n = daysBetween(now, e.date);
+  if (n === 1) return 'Demain';
+  if (n < 7) return `Dans ${n} jours`;
+  if (n < 14) return 'La semaine prochaine';
+  return `Dans ${Math.round(n / 7)} semaines`;
+}
+
+const dayRange = (e: MarketEvent) => day(e.date) + (e.end && e.end !== e.date ? '–' + day(e.end) : '');
+
+/** Le prochain marché en grand, les deux suivants en liste ; sans date à venir, les villes déjà visitées. */
 function NextMarkets({ events }: { events: MarketEvent[] }) {
   const now = today();
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
-  const upcoming = sorted.filter(e => (e.end ?? e.date) >= now).slice(0, 3);
-  const list = upcoming.length ? upcoming : sorted.slice(-3).reverse();
-  if (!list.length) return <p className="dash-text">Les prochaines dates arrivent bientôt.</p>;
+  const upcoming = sorted.filter(e => (e.end ?? e.date) >= now);
+
+  if (!upcoming.length) {
+    const cities = [...new Set(sorted.slice().reverse().map(e => e.city).filter(Boolean))].slice(0, 4);
+    return (
+      <div className="dash-nomarket">
+        <span className="dash-nomarket-icon"><Icon name="sparkle" size={22} /></span>
+        <p className="dash-nomarket-title">Prochaines dates en préparation</p>
+        <p className="dash-text">Les nouveaux marchés sont annoncés sur Instagram. En attendant, les boutiques en ligne restent ouvertes.</p>
+        {cities.length > 0 && (
+          <p className="dash-cities">
+            <span>Déjà passée par</span>
+            {cities.map(c => <span key={c} className="dash-city"><Icon name="pin" size={13} />{c}</span>)}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const [next, ...rest] = upcoming;
   return (
     <>
-      {!upcoming.length && <p className="dash-text dash-muted">Prochaines dates bientôt annoncées. Derniers marchés :</p>}
-      <ul className="dash-events">
-        {list.map(e => (
-          <li key={e.id} className={(e.end ?? e.date) < now ? 'is-past' : undefined}>
-            <span className={'jp-event-date jp-event-date-' + e.kind}>
-              <span className="jp-event-day">{day(e.date)}{e.end && e.end !== e.date ? '–' + day(e.end) : ''}</span>
-              <span className="jp-event-mon">{month(e.date)}</span>
-            </span>
-            <span className="dash-event-body">
+      <article className={'dash-next is-' + next.kind}>
+        <div className="dash-next-date" aria-hidden="true">
+          <span className="dash-next-dow">{weekday(next.date)}</span>
+          <span className="dash-next-day">{dayRange(next)}</span>
+          <span className="dash-next-mon">{month(next.date)}</span>
+        </div>
+        <div className="dash-next-body">
+          <span className="dash-next-when"><Badge tone={next.kind}>{countdown(next, now)}</Badge></span>
+          <h3 className="dash-next-title">{next.title}</h3>
+          <span className="dash-next-meta"><Icon name="pin" size={14} />{[next.place, next.city].filter(Boolean).join(', ')}</span>
+          {next.hours && <span className="dash-next-meta"><Icon name="clock" size={14} />{next.hours}</span>}
+          {(next.place || next.city) && (
+            <a className="dash-link" href={mapsUrl(next)} target="_blank" rel="noopener noreferrer">Itinéraire <Icon name="arrow-up-right" size={14} /></a>
+          )}
+        </div>
+      </article>
+      {rest.length > 0 && (
+        <ul className="dash-events">
+          {rest.slice(0, 2).map(e => (
+            <li key={e.id}>
+              <span className={'dash-event-date is-' + e.kind}>{dayRange(e)} {month(e.date)}</span>
               <span className="dash-event-title">{e.title}</span>
-              <span className="dash-event-meta">{[e.city, e.hours].filter(Boolean).join(' · ')}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+              <span className="dash-event-meta">{e.city}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }
