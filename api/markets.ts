@@ -124,26 +124,45 @@ function toMarkets(ev: VEvent): MarketEvent[] {
 
 const SOCIAL = /^https?:\/\/(?:[\w-]+\.)?(?:facebook\.com|fb\.me|fb\.watch|instagram\.com)\//;
 
+// Robots d'aperçu de lien auxquels Facebook / Instagram servent les balises og:, essayés dans l'ordre.
+const PREVIEW_AGENTS = [
+  'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+  'WhatsApp/2.23.20.0',
+  'Twitterbot/1.0',
+  'TelegramBot (like TwitterBot)',
+];
+
+export interface ImageLookup { link: string; image?: string; tries: string[] }
+
 /** Image d'une publication Facebook ou Instagram : la balise og:image servie aux robots d'aperçu de lien. */
-async function socialImage(url: string): Promise<string | undefined> {
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'facebookexternalhit/1.1' }, redirect: 'follow', signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return undefined;
-    const html = await res.text();
-    const og = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/)?.[1]
-      ?? html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/)?.[1];
-    return og?.replace(/&amp;/g, '&');
-  } catch {
-    return undefined;
+async function socialImage(url: string): Promise<ImageLookup> {
+  const tries: string[] = [];
+  for (const agent of PREVIEW_AGENTS) {
+    const who = agent.split(/[/ ]/)[0];
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': agent, 'Accept-Language': 'fr-FR,fr;q=0.9' }, redirect: 'follow', signal: AbortSignal.timeout(5000),
+      });
+      const html = res.ok ? await res.text() : '';
+      const og = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/)?.[1]
+        ?? html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/)?.[1];
+      const page = new URL(res.url).pathname.split('/').slice(0, 3).join('/');
+      tries.push(`${who}: HTTP ${res.status} ${page}${og ? ' → image' : ' → pas d\'image'}`);
+      // Passe par /api/image : certaines images Facebook ne s'affichent que pour les robots.
+      if (og) return { link: url, image: '/api/image?u=' + encodeURIComponent(og.replace(/&amp;/g, '&')), tries };
+    } catch (err) {
+      tries.push(`${who}: ${(err as Error).name}`);
+    }
   }
+  return { link: url, tries };
 }
 
 /** Remplace les liens de publications Facebook / Instagram par l'adresse de leur image (un appel par lien). */
-export async function resolveSocialImages(events: MarketEvent[]): Promise<MarketEvent[]> {
+export async function resolveSocialImages(events: MarketEvent[], log?: ImageLookup[]): Promise<MarketEvent[]> {
   const links = [...new Set(events.map(e => e.image).filter((u): u is string => !!u && SOCIAL.test(u)))];
-  const found = new Map(await Promise.all(links.map(async u => [u, await socialImage(u)] as const)));
+  const lookups = await Promise.all(links.map(socialImage));
+  log?.push(...lookups);
+  const found = new Map(lookups.map(l => [l.link, l.image]));
   return events.map(e => {
     if (!e.image || !found.has(e.image)) return e;
     const img = found.get(e.image);
@@ -161,17 +180,21 @@ export function parseMarkets(ics: string, today = new Date().toISOString().slice
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function GET() {
-  return marketsResponse(process.env.MARKETS_ICS_URL?.trim());
+export function GET(request?: Request) {
+  const debug = request ? new URL(request.url).searchParams.has('debug') : false;
+  return marketsResponse(process.env.MARKETS_ICS_URL?.trim(), debug);
 }
 
 /** Lit l'agenda et renvoie la réponse JSON ; utilisé par Vercel (GET) et par le serveur local (vite.config.ts). */
-export async function marketsResponse(url: string | undefined) {
+export async function marketsResponse(url: string | undefined, debug = false) {
   if (!url) return Response.json({ error: 'MARKETS_ICS_URL non configurée' }, { status: 503 });
   try {
     const res = await fetch(url.replace(/^webcal:/, 'https:'));
     if (!res.ok) throw new Error(`agenda : HTTP ${res.status}`);
-    const events = await resolveSocialImages(parseMarkets(await res.text()));
+    const log: ImageLookup[] = [];
+    const events = await resolveSocialImages(parseMarkets(await res.text()), log);
+    // /api/markets?debug : ce que Facebook / Instagram ont répondu pour chaque lien d'image (sans l'adresse de l'agenda).
+    if (debug) return Response.json({ images: log, events }, { headers: { 'Cache-Control': 'no-store' } });
     // Cache Vercel 10 min : une modification de l'agenda apparaît sur le site en 10 à 20 min environ
     // (Google Agenda met lui-même quelques minutes à mettre à jour son fichier ICS).
     return Response.json(events, { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=86400' } });

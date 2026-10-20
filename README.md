@@ -59,6 +59,8 @@ Mise en place, une seule fois :
 1. Google Agenda : créez un agenda dédié (« Marchés Les Jolies Perles »), puis *Paramètres de l'agenda → Intégrer l'agenda* et copiez l'**adresse secrète au format iCal**.
 2. Vercel : *Settings → Environment Variables*, ajoutez `MARKETS_ICS_URL` avec cette adresse, puis redéployez.
 
+Image absente sur le site en ligne ? Ouvrez `/api/markets?debug` : il indique, pour chaque lien Facebook ou Instagram, ce que la plateforme a répondu. Les images Facebook et Instagram passent par `/api/image`, car certaines ne s'affichent que pour les robots d'aperçu de lien.
+
 L'adresse reste côté serveur, invisible des visiteurs. Si l'agenda ne répond pas, le site affiche la liste de secours de `src/data/markets.ts`. En local, mettez `MARKETS_ICS_URL=…` dans `.env.local` pour que `npm run dev` lise l'agenda.
 
 ### Publications Instagram en direct
