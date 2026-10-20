@@ -1,14 +1,14 @@
-import { useCallback, useState } from 'react';
 import {
-  BeadArt, Button, Hero, MarketCalendar, Reviews, Section, ShopLinks,
-  SiteFooter, SiteHeader, SocialFeed, SocialLinks, StoryRow, TopSales, type Story,
+  Button, Hero, MarketCalendar, Reviews, Section, ShopLinks,
+  SiteFooter, SiteHeader, SocialFeed, SocialLinks, TopSales,
 } from './components';
-import { StoryViewer } from './components/StoryViewer';
 import { useActiveSection } from './hooks/useActiveSection';
+import { useInstagramFeed } from './hooks/useInstagramFeed';
+import { useMarkets } from './hooks/useMarkets';
 import { ETSY, shops } from './data/shops';
 import { topProducts } from './data/products';
 import { markets } from './data/markets';
-import { posts, socials, stories as initialStories } from './data/social';
+import { INSTAGRAM, instagramFeedUrl, socials } from './data/social';
 import { reviews, reviewsSummary } from './data/reviews';
 import { contactEmail, nav } from './data/site';
 
@@ -16,31 +16,8 @@ const SECTION_IDS = nav.map(n => n.href.slice(1));
 
 export default function App() {
   const active = useActiveSection(SECTION_IDS);
-  const [stories, setStories] = useState(initialStories);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const markSeen = (i: number) =>
-    setStories(list => list.map((s, j) => (j === i ? { ...s, seen: true } : s)));
-
-  const openStory = (s: Story) => {
-    const i = stories.findIndex(x => x.id === s.id);
-    setOpenIndex(i);
-    markSeen(i);
-  };
-
-  const go = useCallback((delta: number) => {
-    setOpenIndex(i => {
-      if (i == null) return null;
-      const n = i + delta;
-      if (n < 0) return 0;
-      if (n >= stories.length) return null;
-      markSeen(n);
-      return n;
-    });
-  }, [stories.length]);
-  const next = useCallback(() => go(1), [go]);
-  const prev = useCallback(() => go(-1), [go]);
-  const close = useCallback(() => setOpenIndex(null), []);
+  const instagram = useInstagramFeed(instagramFeedUrl);
+  const agenda = useMarkets(markets);
 
   return (
     <div className="jp-root">
@@ -55,11 +32,13 @@ export default function App() {
             <Button href={ETSY} external icon="bag">Voir la boutique</Button>
             <Button variant="secondary" href="#marches" icon="calendar">Les prochains marchés</Button>
           </>}
+          imageSrc="/marque/logo.jpeg"
+          imageAlt="Six boucles d’oreilles en perles de verre colorées suspendues à une baguette"
         />
 
         <Section id="apropos" eyebrow="La créatrice" title="Un atelier, des milliers de perles" tone="sable">
           <div className="about">
-            <div className="about-visual"><BeadArt seed={58} beads={13} ratio={0.8} /></div>
+            <div className="about-visual"><img src="/produits/ugm-4401649.jpeg" alt="Créoles Gabrielle en perles et fil de coton bleu marine" /></div>
             <div>
               <p className="jp-lead" style={{ marginTop: 0 }}>
                 Les Jolies Perles, ce sont des bijoux fantaisie imaginés et assemblés à la main : perles de verre,
@@ -79,21 +58,27 @@ export default function App() {
           <div className="shops-block"><ShopLinks shops={shops} /></div>
         </Section>
 
-        <Section id="tops" eyebrow="Les plus aimés" title="Tops ventes" lead="Les bijoux les plus commandés ce mois-ci."
+        <Section id="tops" eyebrow="Les plus aimés" title="Tops ventes" lead="Les modèles qui recueillent le plus d’avis clients."
           action={<Button variant="secondary" size="sm" href={ETSY} external>Tout le catalogue</Button>}>
           <TopSales products={topProducts} />
         </Section>
 
         <Section id="marches" eyebrow="Où nous trouver" title="Les marchés de la saison" tone="sable"
           lead="Marchés locaux toute l’année, marchés de Noël en novembre et décembre. Venez voir les bijoux de près.">
-          <MarketCalendar events={markets} />
+          <MarketCalendar key={agenda.status} events={agenda.events} />
         </Section>
 
         <Section id="reseaux" eyebrow="En ce moment" title="Sur nos réseaux"
           lead="Nouveautés, coulisses de l’atelier et photos des marchés."
           action={<SocialLinks links={socials} />}>
-          <StoryRow stories={stories} onOpen={openStory} />
-          <SocialFeed posts={posts} />
+          {instagram.posts.length > 0
+            ? <SocialFeed posts={instagram.posts} />
+            : instagram.status !== 'loading' && (
+              <p className="feed-fallback">
+                Toutes nos publications sont sur Instagram.{' '}
+                <Button variant="secondary" size="sm" href={INSTAGRAM} external>Voir @les_joliesperles</Button>
+              </p>
+            )}
         </Section>
 
         <Section id="avis" eyebrow="Ils les portent" title="Vos avis" tone="sable">
@@ -103,9 +88,6 @@ export default function App() {
 
       <SiteFooter tagline="Bijoux fantaisie faits main, perle par perle." shops={shops} socials={socials} email={contactEmail} />
 
-      {openIndex != null && (
-        <StoryViewer stories={stories} index={openIndex} onClose={close} onNext={next} onPrev={prev} />
-      )}
     </div>
   );
 }

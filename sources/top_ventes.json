@@ -1,0 +1,38 @@
+[
+  {
+    "family": "Créoles perles en résine",
+    "reviews": 8,
+    "product": "Boucles d'oreilles (petit modèle) créoles perles bleu royal marbré en résine - esprit vintage",
+    "url": "https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-petit-modele-creoles-perles-bleu-roya/4759924",
+    "price": "26,80 €",
+    "in_stock": true,
+    "image": "/produits/ugm-4759924.jpeg"
+  },
+  {
+    "family": "Eva",
+    "reviews": 6,
+    "product": "Boucles d'oreilles eva - pendentif cercle évidé vert - esprit vintage",
+    "url": "https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-eva-pendentif-cercle-evide-vert-esp/4826878",
+    "price": "20,50 €",
+    "in_stock": true,
+    "image": "/produits/ugm-4826878.jpeg"
+  },
+  {
+    "family": "Agate",
+    "reviews": 5,
+    "product": "Boucles d'oreilles agate - gouttes en résine ambre abricot marbré - esprit vintage",
+    "url": "https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-agate-gouttes-en-resine-ambre-abricot/3851135",
+    "price": "18,80 €",
+    "in_stock": true,
+    "image": "/produits/ugm-3851135.jpeg"
+  },
+  {
+    "family": "Gabrielle",
+    "reviews": 2,
+    "product": "Boucles d'oreilles gabrielle (petit modèle) créoles perles fil coton bleu marine - esprit vintage",
+    "url": "https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-gabrielle-petit-modele-creoles-perles/4401649",
+    "price": "30,00 €",
+    "in_stock": true,
+    "image": "/produits/ugm-4401649.jpeg"
+  }
+]

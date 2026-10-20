@@ -394,7 +394,7 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
                 <Badge tone={e.kind}>{KIND_LABEL[e.kind]}</Badge>
                 <span className="jp-event-title">{e.title}</span>
                 <span className="jp-event-meta"><Icon name="calendar" size={15} />{formatRange(e)}</span>
-                <span className="jp-event-meta"><Icon name="pin" size={15} />{e.place}, {e.city}</span>
+                <span className="jp-event-meta"><Icon name="pin" size={15} />{[e.place, e.city].filter(Boolean).join(', ')}</span>
                 {e.hours && <span className="jp-event-meta"><Icon name="clock" size={15} />{e.hours}</span>}
               </span>
             </li>

@@ -1,12 +1,10 @@
 import type { Product } from '../components';
-import { ETSY, UGM } from './shops';
 
-// EXEMPLES : remplacez par vos meilleures ventes (du plus vendu au moins vendu).
-// imageSrc : mettez vos photos dans /public/produits/ puis imageSrc: '/produits/boucles-miel.jpg'.
-// href : collez le lien de la fiche produit sur la boutique.
+// Les ventes par article ne sont pas publiques : classement par nombre d'avis clients
+// sur Un grand marché (sources/top_ventes.json, généré par scripts/fetch_shops.py).
 export const topProducts: Product[] = [
-  { id: 'p1', name: 'Boucles Goutte de miel', price: '18,00 €', href: ETSY, shop: 'Etsy', seed: 11, badge: { tone: 'top', label: 'Top vente' } },
-  { id: 'p2', name: 'Bracelet Jade & laiton', price: '22,00 €', href: ETSY, shop: 'Etsy', seed: 23 },
-  { id: 'p3', name: 'Collier Corail d’hiver', price: '34,00 €', href: UGM, shop: 'Un grand marché', seed: 42, badge: { tone: 'nouveau', label: 'Nouveau' } },
-  { id: 'p4', name: 'Bague Perle de nacre', price: '15,00 €', href: ETSY, shop: 'Etsy', seed: 7 },
+  { id: 'p1', name: 'Créoles perles en résine, bleu royal marbré', price: '26,80 €', href: 'https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-petit-modele-creoles-perles-bleu-roya/4759924', shop: 'Un grand marché', imageSrc: '/produits/ugm-4759924.jpeg', badge: { tone: 'top', label: 'Top vente' } },
+  { id: 'p2', name: 'Boucles Eva, cercle évidé vert', price: '20,50 €', href: 'https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-eva-pendentif-cercle-evide-vert-esp/4826878', shop: 'Un grand marché', imageSrc: '/produits/ugm-4826878.jpeg' },
+  { id: 'p3', name: 'Boucles Agate, gouttes ambre abricot', price: '18,80 €', href: 'https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-agate-gouttes-en-resine-ambre-abricot/3851135', shop: 'Un grand marché', imageSrc: '/produits/ugm-3851135.jpeg' },
+  { id: 'p4', name: 'Créoles Gabrielle, fil coton bleu marine', price: '30,00 €', href: 'https://www.ungrandmarche.fr/boutiques/p/boucles-d-oreilles/boucles-d-oreilles-gabrielle-petit-modele-creoles-perles/4401649', shop: 'Un grand marché', imageSrc: '/produits/ugm-4401649.jpeg' },
 ];
