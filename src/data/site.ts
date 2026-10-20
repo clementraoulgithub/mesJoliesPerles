@@ -10,4 +10,4 @@ export const nav: NavLink[] = [
 
 // Formulaire de contact Formspree : l'identifiant « xxxxxxxx » de https://formspree.io/f/xxxxxxxx.
 // Public (il permet seulement d'envoyer un message) ; la variable Vercel VITE_FORMSPREE_ID, si elle existe, le remplace.
-export const formspreeId: string = import.meta.env.VITE_FORMSPREE_ID || '';
+export const formspreeId: string = import.meta.env.VITE_FORMSPREE_ID || 'mzedlvvp';

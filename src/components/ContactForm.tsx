@@ -22,8 +22,11 @@ export function ContactForm({ formId, onDone }: ContactFormProps) {
     setStatus('sending');
     setError('');
     try {
+      const body = new FormData(form);
+      // Adresse du visiteur en « Répondre à » : Formspree lit le champ « email » (et l'ancien nom « _replyto »).
+      body.set('_replyto', String(body.get('email') ?? ''));
       const res = await fetch(`https://formspree.io/f/${formId}`, {
-        method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' },
+        method: 'POST', body, headers: { Accept: 'application/json' },
       });
       if (res.ok) {
         setStatus('sent');
