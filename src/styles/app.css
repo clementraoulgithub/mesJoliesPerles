@@ -150,6 +150,7 @@ body { margin: 0; background: var(--nacre); }
 .dash-review .jp-avatar { width: 32px; height: 32px; font-size: 16px; }
 .dash-review .jp-rating { vertical-align: -1px; }
 .dash-review-src { flex: none; }
+.dash-review-etsy { width: 26px; height: 26px; display: grid; place-items: center; border-radius: var(--radius-pill); background: #fdebe1; color: #f1641e; }
 .dash-dot { position: relative; width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--line-strong); opacity: .5; cursor: pointer; overflow: hidden; transition: width var(--dur) var(--ease), opacity var(--dur) var(--ease); }
 .dash-dot.is-on { width: 32px; opacity: 1; background: var(--line); }
 .dash-dot.is-on:not(:has(i)) { background: var(--corail); }

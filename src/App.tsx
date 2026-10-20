@@ -151,7 +151,9 @@ function ReviewsCarousel() {
               <b>{r.author}</b>
               <span><Rating value={r.rating} size={12} /> {[r.product, r.date].filter(Boolean).join(' · ')}</span>
             </span>
-            <BrandIcon brand="ungrandmarche" size={26} className="dash-review-src" />
+            {r.source === 'Etsy'
+              ? <span className="dash-review-src dash-review-etsy" title="Avis Etsy"><BrandIcon brand="etsy" size={16} /></span>
+              : <BrandIcon brand="ungrandmarche" size={26} className="dash-review-src" />}
           </figcaption>
         </div>
       </figure>
