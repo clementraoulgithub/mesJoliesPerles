@@ -8,4 +8,6 @@ export const nav: NavLink[] = [
   { label: 'Avis', href: '#avis' },
 ];
 
-export const contactEmail = 'contact@exemple.fr'; // à remplacer
+// Formulaire de contact Formspree : l'identifiant « xxxxxxxx » de https://formspree.io/f/xxxxxxxx.
+// Public (il permet seulement d'envoyer un message) ; la variable Vercel VITE_FORMSPREE_ID, si elle existe, le remplace.
+export const formspreeId: string = import.meta.env.VITE_FORMSPREE_ID || '';

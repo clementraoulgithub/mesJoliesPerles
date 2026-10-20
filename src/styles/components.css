@@ -209,3 +209,22 @@
 .jp-footer a:hover { text-decoration: underline; }
 .jp-footer a:focus-visible { outline-color: var(--nacre); }
 
+
+/* Formulaire de contact */
+.jp-contact-intro { margin: 0 0 var(--space-4); color: var(--ink-muted); }
+.jp-contact { display: flex; flex-direction: column; gap: var(--space-4); }
+.jp-contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+@media (max-width: 560px) { .jp-contact-row { grid-template-columns: 1fr; } }
+.jp-field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 20px; font-weight: 600; }
+.jp-field input, .jp-field select, .jp-field textarea { font: 400 16px/24px var(--font-sans); color: var(--ink); background: var(--nacre-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-md); padding: 10px 12px; transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+.jp-field textarea { resize: vertical; min-height: 120px; }
+.jp-field input:focus, .jp-field select:focus, .jp-field textarea:focus { outline: none; border-color: var(--corail); box-shadow: 0 0 0 3px var(--corail-soft); }
+.jp-contact-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.jp-contact-note { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+.jp-contact-error { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--corail-soft); color: var(--corail-ink); font-size: 14px; line-height: 20px; }
+.jp-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+.jp-contact-done { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-6) 0; text-align: center; }
+.jp-contact-done p { margin: 0; color: var(--ink-muted); }
+.jp-contact-done .jp-btn { margin-top: var(--space-3); }
+.jp-contact-done-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--corail-soft); color: var(--corail); }
+.jp-contact-done-title { font: 600 24px/30px var(--font-display); color: var(--ink) !important; }

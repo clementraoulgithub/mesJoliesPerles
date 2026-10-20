@@ -7,6 +7,8 @@ import { ETSY, UGM } from './data/shops';
 import { topEtsy, topUgm } from './data/products';
 import { markets } from './data/markets';
 import { instagramFeedUrl, socials } from './data/social';
+import { formspreeId } from './data/site';
+import { ContactForm } from './components/ContactForm';
 import { reviews, reviewsSummary } from './data/reviews';
 
 const MONTHS_SHORT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
@@ -20,6 +22,7 @@ export default function App() {
   const agenda = useMarkets(markets);
   const events = useMemo(() => withImages(agenda.events, instagram.posts), [agenda.events, instagram.posts]);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   return (
     <div className="jp-root dash">
@@ -31,6 +34,9 @@ export default function App() {
               <h1 id="h-intro" className="dash-name">Les-jolies-perles</h1>
               <p className="dash-tag">La passion, la création</p>
             </div>
+            <button type="button" className="dash-contact" onClick={() => setContactOpen(true)} aria-label="Me contacter" title="Me contacter">
+              <Icon name="mail" size={18} />
+            </button>
           </div>
           {/* Résumé des descriptions Un grand marché, Etsy et de la bio Instagram */}
           <p className="dash-lead">
@@ -73,7 +79,12 @@ export default function App() {
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
           <div className="dash-panel-head">
             <h2 id="h-insta" className="dash-h"><span className="dash-h-icon dash-h-insta"><BrandIcon brand="instagram" size={18} /></span>Suivez-moi</h2>
-            <ul className="dash-socials" aria-label="Réseaux sociaux">
+            <ul className="dash-socials" aria-label="Réseaux sociaux et contact">
+              <li>
+                <button type="button" onClick={() => setContactOpen(true)} aria-label="Me contacter par e-mail" title="Me contacter">
+                  <Icon name="mail" size={16} />
+                </button>
+              </li>
               {socials.map(l => (
                 <li key={l.href}>
                   <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={BRAND_LABEL[l.network as 'instagram'] + ' : ' + l.handle}>
@@ -104,9 +115,14 @@ export default function App() {
         <a className="dash-shop dash-shop-ugm" href={UGM} target="_blank" rel="noopener noreferrer"><BrandIcon brand="ungrandmarche" size={24} /><span>Un grand marché</span></a>
       </footer>
 
-      <CalendarDialog open={calendarOpen} onClose={() => setCalendarOpen(false)}>
+      <Dialog title="Calendrier des marchés" open={calendarOpen} onClose={() => setCalendarOpen(false)}>
         <MarketCalendar key={agenda.status} events={events} />
-      </CalendarDialog>
+      </Dialog>
+
+      <Dialog title="Me contacter" narrow open={contactOpen} onClose={() => setContactOpen(false)}>
+        <p className="jp-contact-intro">Une question, une envie de bijou sur mesure, une invitation à un marché ? Écrivez-moi.</p>
+        <ContactForm formId={formspreeId} onDone={() => setContactOpen(false)} />
+      </Dialog>
     </div>
   );
 }
@@ -189,7 +205,7 @@ function TopsPanel() {
     <section className="dash-tops" aria-labelledby="h-tops" aria-roledescription="carrousel"
       {...hoverProps}>
       <div className="dash-panel-head">
-        <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="flame" size={18} /></span>Tops ventes</h2>
+        <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="award" size={18} /></span>Tops ventes</h2>
         <div className="jp-chips" role="group" aria-label="Boutique">
           {([['etsy', 'Etsy'], ['ugm', 'Un grand marché']] as const).map(([k, l]) => (
             <button key={k} type="button" className="jp-chip dash-tab" aria-pressed={shop === k} onClick={() => setShop(k)}>
@@ -371,9 +387,15 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
   );
 }
 
-/** Fenêtre du calendrier complet (élément <dialog> natif : Échap ferme, focus piégé). */
-function CalendarDialog({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
+/** Fenêtre modale (élément <dialog> natif : Échap ferme, focus piégé) : calendrier complet, formulaire de contact. */
+function Dialog({ title, open, onClose, narrow, children }: { title: string; open: boolean; onClose: () => void; narrow?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Ferme seulement sur un clic commencé et terminé hors du cadre (le fond grisé), pas dans la marge intérieure.
+  const downOutside = useRef(false);
+  const isOutside = (e: { clientX: number; clientY: number }) => {
+    const r = ref.current?.getBoundingClientRect();
+    return !!r && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom);
+  };
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -381,10 +403,11 @@ function CalendarDialog({ open, onClose, children }: { open: boolean; onClose: (
     if (!open && d.open) d.close();
   }, [open]);
   return (
-    <dialog ref={ref} className="dash-dialog" aria-label="Calendrier des marchés" onClose={onClose}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <dialog ref={ref} className={'dash-dialog' + (narrow ? ' is-narrow' : '')} aria-label={title} onClose={onClose}
+      onPointerDown={e => { downOutside.current = isOutside(e); }}
+      onClick={e => { if (downOutside.current && isOutside(e)) onClose(); downOutside.current = false; }}>
       <div className="dash-dialog-head">
-        <h2 className="dash-h">Calendrier des marchés</h2>
+        <h2 className="dash-h">{title}</h2>
         <button type="button" className="jp-iconbtn" onClick={onClose} aria-label="Fermer"><Icon name="close" /></button>
       </div>
       {open && children}

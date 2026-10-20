@@ -24,7 +24,7 @@ Le dossier `dist/` produit par `npm run build` se dépose tel quel sur n'importe
 | Les dates des marchés               | l'agenda des marchés (voir plus bas) |
 | Les comptes et le flux Instagram    | `src/data/social.ts`         |
 | Les avis et la note moyenne         | `src/data/reviews.ts`        |
-| Le menu et l'e-mail de contact      | `src/data/site.ts`           |
+| Le formulaire de contact (Formspree) | `src/data/site.ts`          |
 | Les textes de la page               | `src/App.tsx`                |
 | Les couleurs, espacements, polices  | `src/styles/tokens.css`      |
 
@@ -62,6 +62,15 @@ Mise en place, une seule fois :
 Image absente sur le site en ligne ? Ouvrez `/api/markets?debug` : il indique, pour chaque lien Facebook ou Instagram, ce que la plateforme a répondu. Les images Facebook et Instagram passent par `/api/image`, car certaines ne s'affichent que pour les robots d'aperçu de lien.
 
 L'adresse reste côté serveur, invisible des visiteurs. Si l'agenda ne répond pas, le site affiche la liste de secours de `src/data/markets.ts`. En local, mettez `MARKETS_ICS_URL=…` dans `.env.local` pour que `npm run dev` lise l'agenda.
+
+### Formulaire de contact
+
+Le bouton ✉ (présentation et « Suivez-moi ») ouvre un formulaire envoyé par [Formspree](https://formspree.io) : chaque message arrive par e-mail.
+
+1. Sur formspree.io, créez un formulaire avec l'adresse e-mail qui doit recevoir les messages. Formspree donne une adresse du type `https://formspree.io/f/xxxxxxxx`.
+2. Mettez `xxxxxxxx` dans `src/data/site.ts` (`formspreeId`), ou dans la variable Vercel `VITE_FORMSPREE_ID`, puis redéployez.
+
+Cet identifiant est public : il permet seulement d'envoyer un message. Un champ invisible piège les robots, et Formspree filtre aussi le spam.
 
 ### Publications Instagram en direct
 
