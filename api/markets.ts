@@ -9,13 +9,14 @@
  *   titre    → nom du marché ; « Noël » dans le titre le classe en marché de Noël
  *   lieu     → « Salle des fêtes, 1 rue …, 44119 Treillières, France » : 1re partie = lieu, ville déduite du code postal
  *   horaires → heure de début et de fin ; un événement « toute la journée » n'affiche pas d'horaire
+ *   description → un lien vers l'image du marché (image directe, partage Google Drive, publication Instagram ou Facebook)
  */
 
 declare const process: { env: Record<string, string | undefined> };
 
 export interface MarketEvent {
   id: string; date: string; end?: string; title: string; place: string; city: string;
-  hours?: string; kind: 'local' | 'noel'; href?: string;
+  hours?: string; kind: 'local' | 'noel'; href?: string; image?: string;
 }
 
 const TZ = 'Europe/Paris';
@@ -58,6 +59,14 @@ function toLocal(p: Prop): { date: string; time?: string } {
   return { date: `${get('year')}-${get('month')}-${get('day')}`, time: `${get('hour')}:${get('minute')}` };
 }
 
+/** Premier lien de la description (Google Agenda y met parfois du HTML : <a href="…">). Partage Drive → image directe. */
+export function imageLink(description: string): string | undefined {
+  const url = description.match(/https?:\/\/[^\s"'<>]+/)?.[0]?.replace(/[).,;]+$/, '').replace(/&amp;/g, '&');
+  if (!url) return undefined;
+  const drive = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
+  return drive ? `https://drive.google.com/thumbnail?id=${drive[1]}&sz=w1200` : url;
+}
+
 const addDays = (iso: string, n: number) => new Date(Date.parse(iso + 'T00:00:00Z') + n * DAY).toISOString().slice(0, 10);
 const fmtTime = (t: string) => { const [h, m] = t.split(':'); return `${Number(h)}h${m === '00' ? '' : m}`; };
 
@@ -81,8 +90,9 @@ function toMarkets(ev: VEvent): MarketEvent[] {
   const { place, city } = splitLocation(unescape(one('LOCATION')?.value ?? ''));
   const kind = /no[eë]l/i.test(title + ' ' + (one('CATEGORIES')?.value ?? '')) ? 'noel' : 'local';
   const url = one('URL')?.value;
+  const image = imageLink(unescape(one('DESCRIPTION')?.value ?? ''));
   const base = {
-    title, place, city, kind, href: url,
+    title, place, city, kind, href: url, image,
     hours: start.time && end?.time ? `${fmtTime(start.time)} – ${fmtTime(end.time)}` : start.time ? `dès ${fmtTime(start.time)}` : undefined,
   } as const;
   const span = Math.max(0, Math.round((Date.parse(lastDay) - Date.parse(start.date)) / DAY));
@@ -112,6 +122,36 @@ function toMarkets(ev: VEvent): MarketEvent[] {
   }));
 }
 
+const SOCIAL = /^https?:\/\/(?:[\w-]+\.)?(?:facebook\.com|fb\.me|fb\.watch|instagram\.com)\//;
+
+/** Image d'une publication Facebook ou Instagram : la balise og:image servie aux robots d'aperçu de lien. */
+async function socialImage(url: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'facebookexternalhit/1.1' }, redirect: 'follow', signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return undefined;
+    const html = await res.text();
+    const og = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/)?.[1]
+      ?? html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/)?.[1];
+    return og?.replace(/&amp;/g, '&');
+  } catch {
+    return undefined;
+  }
+}
+
+/** Remplace les liens de publications Facebook / Instagram par l'adresse de leur image (un appel par lien). */
+export async function resolveSocialImages(events: MarketEvent[]): Promise<MarketEvent[]> {
+  const links = [...new Set(events.map(e => e.image).filter((u): u is string => !!u && SOCIAL.test(u)))];
+  const found = new Map(await Promise.all(links.map(async u => [u, await socialImage(u)] as const)));
+  return events.map(e => {
+    if (!e.image || !found.has(e.image)) return e;
+    const img = found.get(e.image);
+    // Instagram introuvable : on garde le lien, le site le cherchera dans le flux Behold.
+    return img ? { ...e, image: img } : /instagram\.com/.test(e.image) ? e : { ...e, image: undefined };
+  });
+}
+
 export function parseMarkets(ics: string, today = new Date().toISOString().slice(0, 10)): MarketEvent[] {
   const from = addDays(today, -365);
   const to = addDays(today, 540);
@@ -121,12 +161,17 @@ export function parseMarkets(ics: string, today = new Date().toISOString().slice
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export async function GET(_request?: Request, url = process.env.MARKETS_ICS_URL) {
+export function GET() {
+  return marketsResponse(process.env.MARKETS_ICS_URL?.trim());
+}
+
+/** Lit l'agenda et renvoie la réponse JSON ; utilisé par Vercel (GET) et par le serveur local (vite.config.ts). */
+export async function marketsResponse(url: string | undefined) {
   if (!url) return Response.json({ error: 'MARKETS_ICS_URL non configurée' }, { status: 503 });
   try {
     const res = await fetch(url.replace(/^webcal:/, 'https:'));
     if (!res.ok) throw new Error(`agenda : HTTP ${res.status}`);
-    const events = parseMarkets(await res.text());
+    const events = await resolveSocialImages(parseMarkets(await res.text()));
     // Cache Vercel 10 min : une modification de l'agenda apparaît sur le site en 10 à 20 min environ
     // (Google Agenda met lui-même quelques minutes à mettre à jour son fichier ICS).
     return Response.json(events, { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=86400' } });

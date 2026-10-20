@@ -51,6 +51,7 @@ Dans l'agenda, un événement = un marché :
 - **Titre** : le nom du marché. S'il contient « Noël », c'est un marché de Noël.
 - **Lieu** : « Salle Simone de Beauvoir, 12 rue …, 44119 Treillières ». Le site affiche le lieu et la ville.
 - **Horaires** : début et fin de l'événement. « Toute la journée » n'affiche pas d'horaire ; sur plusieurs jours, le marché couvre tous les jours.
+- **Description** : un lien vers l'image du marché (affiche, photo du stand). Au choix : lien direct vers une image, lien de partage Google Drive (partagé à « Tous les utilisateurs disposant du lien ») ou lien d'une publication Instagram ou Facebook publique (ex. `https://www.facebook.com/share/p/…`).
 - Les répétitions « chaque semaine » et « chaque mois » sont prises en compte, les événements annulés sont ignorés.
 
 Mise en place, une seule fois :

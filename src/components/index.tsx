@@ -304,6 +304,8 @@ export interface MarketEvent {
   hours?: string;
   kind: MarketKind;
   href?: string;
+  /** Image du marché (affiche, photo du stand). */
+  image?: string;
 }
 export interface MarketCalendarProps {
   events: MarketEvent[];
@@ -321,6 +323,9 @@ const KIND_LABEL: Record<MarketKind, string> = { local: 'Marché local', noel: '
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 const parse = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d || 1); };
 const covers = (e: MarketEvent, day: string) => day >= e.date && day <= (e.end ?? e.date);
+/** Lien Google Maps vers le lieu du marché (ouvre l'itinéraire sur mobile). */
+export const mapsUrl = (e: MarketEvent) =>
+  'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([e.place, e.city].filter(Boolean).join(', '));
 
 function formatRange(e: MarketEvent) {
   const a = parse(e.date);
@@ -393,7 +398,7 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
         {list.length === 0 && <p className="jp-empty">Pas de marché ce mois-ci. Les boutiques en ligne restent ouvertes.</p>}
         <ul>
           {list.map(e => (
-            <li key={e.id} className={cx('jp-event', (e.end ?? e.date) < now && 'is-past')}>
+            <li key={e.id} className={cx('jp-event', (e.end ?? e.date) < now && 'is-past', e.image && 'has-img')}>
               <span className={'jp-event-date jp-event-date-' + e.kind}>
                 <span className="jp-event-day">{parse(e.date).getDate()}</span>
                 <span className="jp-event-mon">{MONTHS_SHORT[parse(e.date).getMonth()]}</span>
@@ -404,7 +409,13 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
                 <span className="jp-event-meta"><Icon name="calendar" size={15} />{formatRange(e)}</span>
                 <span className="jp-event-meta"><Icon name="pin" size={15} />{[e.place, e.city].filter(Boolean).join(', ')}</span>
                 {e.hours && <span className="jp-event-meta"><Icon name="clock" size={15} />{e.hours}</span>}
+                {(e.place || e.city) && (
+                  <a className="jp-event-link" href={mapsUrl(e)} target="_blank" rel="noopener noreferrer">
+                    Itinéraire <Icon name="arrow-up-right" size={14} />
+                  </a>
+                )}
               </span>
+              {e.image && <img className="jp-event-img" src={e.image} alt="" loading="lazy" onError={ev => { ev.currentTarget.parentElement?.classList.remove('has-img'); ev.currentTarget.remove(); }} />}
             </li>
           ))}
         </ul>

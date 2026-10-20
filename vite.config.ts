@@ -7,8 +7,8 @@ function marketsApi(icsUrl?: string): Plugin {
     name: 'markets-api',
     configureServer(server) {
       server.middlewares.use('/api/markets', async (_req, res) => {
-        const { GET } = await server.ssrLoadModule('/api/markets.ts');
-        const r: Response = await GET(undefined, icsUrl);
+        const { marketsResponse } = await server.ssrLoadModule('/api/markets.ts');
+        const r: Response = await marketsResponse(icsUrl);
         res.statusCode = r.status;
         res.setHeader('Content-Type', 'application/json');
         res.end(await r.text());

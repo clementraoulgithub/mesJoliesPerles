@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Badge, Icon, MarketCalendar, Rating, type MarketEvent, type Product } from './components';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Badge, Icon, MarketCalendar, Rating, mapsUrl, type MarketEvent, type Post, type Product } from './components';
 import { BrandIcon, BRAND_LABEL } from './components/BrandIcon';
 import { useInstagramFeed } from './hooks/useInstagramFeed';
 import { useMarkets } from './hooks/useMarkets';
@@ -18,6 +18,7 @@ const month = (iso: string) => MONTHS_SHORT[Number(iso.slice(5, 7)) - 1];
 export default function App() {
   const instagram = useInstagramFeed(instagramFeedUrl);
   const agenda = useMarkets(markets);
+  const events = useMemo(() => withImages(agenda.events, instagram.posts), [agenda.events, instagram.posts]);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   return (
@@ -66,7 +67,7 @@ export default function App() {
             <h2 id="h-agenda" className="dash-h"><span className="dash-h-icon"><Icon name="calendar" size={18} /></span>Prochains marchés</h2>
             <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}><Icon name="calendar" size={15} />Calendrier</button>
           </div>
-          <NextMarkets events={agenda.events} />
+          <NextMarkets events={events} />
         </section>
 
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
@@ -104,7 +105,7 @@ export default function App() {
       </footer>
 
       <CalendarDialog open={calendarOpen} onClose={() => setCalendarOpen(false)}>
-        <MarketCalendar key={agenda.status} events={agenda.events} />
+        <MarketCalendar key={agenda.status} events={events} />
       </CalendarDialog>
     </div>
   );
@@ -221,8 +222,6 @@ const DAY_MS = 86_400_000;
 const WEEKDAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
 const weekday = (iso: string) => WEEKDAYS[new Date(iso + 'T12:00:00').getDay()];
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / DAY_MS);
-const mapsUrl = (e: MarketEvent) =>
-  'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([e.place, e.city].filter(Boolean).join(', '));
 
 /** « Aujourd'hui », « Demain », « Dans 5 jours »… */
 function countdown(e: MarketEvent, now: string) {
@@ -234,6 +233,15 @@ function countdown(e: MarketEvent, now: string) {
   return `Dans ${Math.round(n / 7)} semaines`;
 }
 
+/** Un lien de publication Instagram dans l'agenda devient la photo de cette publication (flux Behold). */
+function withImages(events: MarketEvent[], posts: Post[]): MarketEvent[] {
+  return events.map(e => {
+    const code = e.image?.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel)\/([\w-]+)/)?.[1];
+    if (!code) return e;
+    return { ...e, image: posts.find(p => p.href.includes('/' + code))?.imageSrc };
+  });
+}
+
 const dayRange = (e: MarketEvent) => day(e.date) + (e.end && e.end !== e.date ? '–' + day(e.end) : '');
 
 /** Le prochain marché en grand, les deux suivants en liste ; sans date à venir, les villes déjà visitées. */
@@ -241,6 +249,10 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
   const now = today();
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
   const upcoming = sorted.filter(e => (e.end ?? e.date) >= now);
+  const [imgFailed, setImgFailed] = useState(false);
+  const imageKey = upcoming[0]?.image;
+  useEffect(() => setImgFailed(false), [imageKey]);
+  const showImg = !!imageKey && !imgFailed;
 
   if (!upcoming.length) {
     const cities = [...new Set(sorted.slice().reverse().map(e => e.city).filter(Boolean))].slice(0, 4);
@@ -262,16 +274,28 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
   const [next, ...rest] = upcoming;
   return (
     <>
-      <article className={'dash-next is-' + next.kind}>
-        <div className="dash-next-date" aria-hidden="true">
-          <span className="dash-next-dow">{weekday(next.date)}</span>
-          <span className="dash-next-day">{dayRange(next)}</span>
-          <span className="dash-next-mon">{month(next.date)}</span>
-        </div>
+      <article className={'dash-next is-' + next.kind + (showImg ? ' has-img' : '')}>
+        {showImg ? (
+          <div className="dash-next-visual">
+            <img src={next.image} alt={'Affiche : ' + next.title} onError={() => setImgFailed(true)} />
+            <span className="dash-next-chip"><span className="dash-next-chip-dow">{weekday(next.date)} </span>{dayRange(next)} {month(next.date)}</span>
+          </div>
+        ) : (
+          <div className="dash-next-date" aria-hidden="true">
+            <span className="dash-next-dow">{weekday(next.date)}</span>
+            <span className="dash-next-day">{dayRange(next)}</span>
+            <span className="dash-next-mon">{month(next.date)}</span>
+          </div>
+        )}
         <div className="dash-next-body">
           <span className="dash-next-when"><Badge tone={next.kind}>{countdown(next, now)}</Badge></span>
           <h3 className="dash-next-title">{next.title}</h3>
-          <span className="dash-next-meta"><Icon name="pin" size={14} />{[next.place, next.city].filter(Boolean).join(', ')}</span>
+          {(next.city || next.place) && (
+            <span className="dash-next-meta dash-next-where">
+              <Icon name="pin" size={14} />
+              <span>{next.city && <b>{next.city}</b>}{next.place && <small>{next.place}</small>}</span>
+            </span>
+          )}
           {next.hours && <span className="dash-next-meta"><Icon name="clock" size={14} />{next.hours}</span>}
           {(next.place || next.city) && (
             <a className="dash-link" href={mapsUrl(next)} target="_blank" rel="noopener noreferrer">Itinéraire <Icon name="arrow-up-right" size={14} /></a>
