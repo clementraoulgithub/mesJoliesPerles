@@ -116,7 +116,7 @@ const REVIEW_DELAY = 6000;
 /** Avis qui défilent seuls toutes les 6 s, pause au survol. Le minuteur repart à chaque changement d'avis. */
 function ReviewsCarousel() {
   const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [paused, hoverProps] = useHover();
 
   useEffect(() => {
     if (paused) return;
@@ -127,7 +127,7 @@ function ReviewsCarousel() {
   const r = reviews[i];
   return (
     <section className="dash-panel dash-reviews" aria-labelledby="h-reviews" aria-roledescription="carrousel"
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      {...hoverProps}>
       <div className="dash-panel-head">
         <h2 id="h-reviews" className="dash-h"><span className="dash-h-icon"><Icon name="star" size={18} filled /></span>Vos avis</h2>
         <span className="dash-score">
@@ -176,7 +176,7 @@ const TOPS_DELAY = 8000;
 /** Les 2 meilleures ventes ; Etsy et Un grand marché alternent toutes les 8 s, pause au survol. */
 function TopsPanel() {
   const [shop, setShop] = useState<'etsy' | 'ugm'>('etsy');
-  const [paused, setPaused] = useState(false);
+  const [paused, hoverProps] = useHover();
   const products: Product[] = (shop === 'etsy' ? topEtsy : topUgm).slice(0, 2);
 
   useEffect(() => {
@@ -187,7 +187,7 @@ function TopsPanel() {
 
   return (
     <section className="dash-tops" aria-labelledby="h-tops" aria-roledescription="carrousel"
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      {...hoverProps}>
       <div className="dash-panel-head">
         <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="flame" size={18} /></span>Tops ventes</h2>
         <div className="jp-chips" role="group" aria-label="Boutique">
@@ -219,13 +219,26 @@ function TopsPanel() {
   );
 }
 
-const GALLERY_DELAY = 1800;
+/**
+ * Survol fiable : le navigateur n'envoie pas « mouseleave » quand un clic ouvre un nouvel onglet.
+ * On remet donc le survol à faux quand la page perd le focus ou est masquée, et on le reprend au premier mouvement.
+ */
+function useHover() {
+  const [hover, setHover] = useState(false);
+  useEffect(() => {
+    const off = () => setHover(false);
+    const onVisibility = () => { if (document.hidden) off(); };
+    window.addEventListener('blur', off);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => { window.removeEventListener('blur', off); document.removeEventListener('visibilitychange', onVisibility); };
+  }, []);
+  return [hover, { onMouseEnter: () => setHover(true), onMouseMove: () => setHover(true), onMouseLeave: () => setHover(false) }] as const;
+}
 
-/** Photos d'un bijou : défilent au survol, flèches et points, glisser au doigt (défilement natif aimanté). */
+/** Photos d'un bijou : flèches et points, glisser au doigt (défilement natif aimanté). Pas de défilement automatique. */
 function Gallery({ images, href, name, children }: { images: string[]; href: string; name: string; children?: ReactNode }) {
   const track = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
-  const [hover, setHover] = useState(false);
   const many = images.length > 1;
 
   const go = (n: number) => {
@@ -235,14 +248,9 @@ function Gallery({ images, href, name, children }: { images: string[]; href: str
     setI(k);
     el.scrollTo({ left: k * el.clientWidth, behavior: 'smooth' });
   };
-  useEffect(() => {
-    if (!hover || !many) return;
-    const t = window.setTimeout(() => go(i + 1), GALLERY_DELAY);
-    return () => window.clearTimeout(t);
-  }, [hover, i, many]);
 
   return (
-    <div className="dash-gallery" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="dash-gallery">
       <div ref={track} className="dash-gallery-track"
         onScroll={e => setI(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}>
         {images.map((src, n) => (
