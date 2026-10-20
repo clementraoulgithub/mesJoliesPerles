@@ -45,7 +45,7 @@ export default function App() {
           <dl className="dash-stats">
             <div><dt>Note</dt><dd>{reviewsSummary.average.toFixed(1).replace('.', ',')}<Icon name="star" size={16} filled /></dd></div>
             <div><dt>Ventes</dt><dd>1 900+</dd></div>
-            <div><dt>Abonnés</dt><dd>{(instagram.followers ?? 1731).toLocaleString('fr-FR')}</dd></div>
+            <div><dt>Abonnés</dt><dd>{(instagram.followers ?? 1731).toLocaleString('fr-FR')}<span className="dash-stat-insta"><BrandIcon brand="instagram" size={14} /></span></dd></div>
           </dl>
           <div className="dash-shops">
             <a className="dash-shop dash-shop-etsy" href={ETSY} target="_blank" rel="noopener noreferrer">
@@ -168,23 +168,35 @@ function ReviewsCarousel() {
   );
 }
 
-/** Les 2 meilleures ventes, une boutique à la fois. */
+const TOPS_DELAY = 8000;
+
+/** Les 2 meilleures ventes ; Etsy et Un grand marché alternent toutes les 8 s, pause au survol. */
 function TopsPanel() {
   const [shop, setShop] = useState<'etsy' | 'ugm'>('etsy');
+  const [paused, setPaused] = useState(false);
   const products: Product[] = (shop === 'etsy' ? topEtsy : topUgm).slice(0, 2);
+
+  useEffect(() => {
+    if (paused) return;
+    const t = window.setTimeout(() => setShop(x => (x === 'etsy' ? 'ugm' : 'etsy')), TOPS_DELAY);
+    return () => window.clearTimeout(t);
+  }, [shop, paused]);
+
   return (
-    <section className="dash-tops" aria-labelledby="h-tops">
+    <section className="dash-tops" aria-labelledby="h-tops" aria-roledescription="carrousel"
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="dash-panel-head">
         <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="trophy" size={18} /></span>Tops ventes</h2>
         <div className="jp-chips" role="group" aria-label="Boutique">
           {([['etsy', 'Etsy'], ['ugm', 'Un grand marché']] as const).map(([k, l]) => (
-            <button key={k} type="button" className="jp-chip" aria-pressed={shop === k} onClick={() => setShop(k)}>
+            <button key={k} type="button" className="jp-chip dash-tab" aria-pressed={shop === k} onClick={() => setShop(k)}>
               <BrandIcon brand={k === 'etsy' ? 'etsy' : 'ungrandmarche'} size={k === 'etsy' ? 14 : 20} />{l}
+              {shop === k && !paused && <i key={shop} className="dash-tab-progress" style={{ animationDuration: TOPS_DELAY + 'ms' }} />}
             </button>
           ))}
         </div>
       </div>
-      <ol className="dash-products">
+      <ol key={shop} className="dash-products">
         {products.map((p, n) => (
           <li key={p.id}>
             <a className="dash-product" href={p.href} target="_blank" rel="noopener noreferrer">
@@ -237,7 +249,7 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
       <div className="dash-nomarket">
         <span className="dash-nomarket-icon"><Icon name="sparkle" size={22} /></span>
         <p className="dash-nomarket-title">Prochaines dates en préparation</p>
-        <p className="dash-text">Les nouveaux marchés sont annoncés sur Instagram. En attendant, les boutiques en ligne restent ouvertes.</p>
+        <p className="dash-text">Les nouvelles dates sont annoncées sur Instagram. Les boutiques en ligne restent ouvertes.</p>
         {cities.length > 0 && (
           <p className="dash-cities">
             <span>Déjà passée par</span>
