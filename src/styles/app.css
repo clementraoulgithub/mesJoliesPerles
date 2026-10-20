@@ -93,23 +93,40 @@ body { margin: 0; background: var(--nacre); }
 .dash-products { animation: dash-fade var(--dur) var(--ease); }
 .dash-products { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dash-products li { min-height: 0; }
-.dash-product { height: 100%; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: var(--ink); }
-.dash-product-media { isolation: isolate; position: relative; flex: 1; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--nacre-raised); margin-bottom: var(--space-2); }
-.dash-product-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); will-change: transform; backface-visibility: hidden; }
-.dash-product:hover .dash-product-media img { transform: scale(1.04); }
-.dash-product-rank { position: absolute; left: var(--space-3); top: var(--space-1); font: 500 40px/48px var(--font-display); color: var(--laiton); text-shadow: 0 0 10px var(--nacre); }
-.dash-product-badge { position: absolute; right: var(--space-3); top: var(--space-3); }
+.dash-product { height: 100%; display: flex; flex-direction: column; gap: var(--space-2); color: var(--ink); }
+
+/* Galerie de photos d'un bijou */
+.dash-gallery { isolation: isolate; position: relative; flex: 1; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--nacre-raised); }
+.dash-gallery-track { position: absolute; inset: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.dash-gallery-track::-webkit-scrollbar { display: none; }
+.dash-gallery-track a { flex: 0 0 100%; scroll-snap-align: start; overflow: hidden; }
+.dash-gallery-track img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); will-change: transform; backface-visibility: hidden; user-select: none; }
+.dash-gallery:hover .dash-gallery-track img { transform: scale(1.03); }
+.dash-gallery-track a:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+.dash-gallery-btn { position: absolute; top: 50%; z-index: 2; width: 34px; height: 34px; margin-top: -17px; display: grid; place-items: center; padding: 0; border: 0; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.92); color: var(--ink); box-shadow: var(--shadow-card); cursor: pointer; opacity: 0; transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.dash-gallery-btn.is-prev { left: var(--space-2); transform: translateX(-4px); }
+.dash-gallery-btn.is-next { right: var(--space-2); transform: translateX(4px); }
+.dash-gallery:hover .dash-gallery-btn, .dash-gallery-btn:focus-visible { opacity: 1; transform: none; }
+.dash-gallery-btn:hover { background: #fff; color: var(--corail-ink); }
+.dash-gallery-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.dash-gallery-dots { position: absolute; left: 50%; bottom: var(--space-2); z-index: 2; transform: translateX(-50%); display: flex; gap: 5px; padding: 5px 8px; border-radius: var(--radius-pill); background: rgba(43, 31, 26, 0.35); backdrop-filter: blur(4px); pointer-events: none; }
+.dash-gallery-dots i { width: 6px; height: 6px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.55); transition: width var(--dur) var(--ease), background-color var(--dur) var(--ease); }
+.dash-gallery-dots i.is-on { width: 16px; background: #fff; }
+@media (hover: none) { .dash-gallery-btn { display: none; } }
+
+.dash-product-rank { z-index: 2; pointer-events: none; position: absolute; left: var(--space-3); top: var(--space-1); font: 500 40px/48px var(--font-display); color: var(--laiton); text-shadow: 0 0 10px var(--nacre); }
+.dash-product-badge { z-index: 2; pointer-events: none; position: absolute; right: var(--space-3); top: var(--space-3); }
 .dash-product-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dash-product-meta { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-3); }
+.dash-product-meta { text-decoration: none; color: inherit; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-3); }
 .dash-product-meta .dash-product-name { min-width: 0; white-space: normal; line-height: 20px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .dash-product-shop { flex: none; }
 .dash-product-shop { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 13px; line-height: 18px; font-weight: 600; color: var(--corail-ink); }
-.dash-product:hover .dash-product-shop { color: var(--ink); }
+.dash-product-meta:hover .dash-product-shop { color: var(--ink); }
 .dash-tops .jp-chip { gap: var(--space-2); background: var(--nacre-raised); border-color: var(--line); }
 .dash-tops .jp-chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--nacre); }
 .dash-tops .jp-chip .jp-brand { color: #f1641e; }
 .dash-tops .jp-chip[aria-pressed="true"] .jp-brand-ugm { background: var(--nacre); border-radius: var(--radius-pill); }
-.dash-product:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: var(--radius-md); }
+.dash-product-meta:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: var(--radius-sm); }
 
 /* Bande du bas : trois colonnes ouvertes, séparées par un filet */
 .dash-panel { display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; overflow: hidden; padding-top: var(--space-6); border-top: 1px solid var(--line-strong); }
@@ -291,7 +308,7 @@ body { margin: 0; background: var(--nacre); }
   .dash-features li { white-space: normal; }
   .dash-tops { padding: var(--space-4); }
   .dash-products { gap: var(--space-4); }
-  .dash-product-media { flex: none; aspect-ratio: 1; }
+  .dash-gallery { flex: none; aspect-ratio: 1; }
   .dash-product-name { font-size: 14px; }
     .dash-bottom { display: flex; gap: var(--space-3); position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--nacre); }
   .dash-bottom .dash-shop { flex: 1; justify-content: center; min-height: 48px; }

@@ -257,6 +257,8 @@ export function ShopLinks({ shops }: ShopLinksProps) {
 export interface Product {
   id: string; name: string; price?: string; href: string;
   shop?: string; imageSrc?: string; seed?: number; badge?: { tone: BadgeTone; label: string };
+  /** Toutes les photos du bijou (galerie) ; la première remplace imageSrc. */
+  images?: string[];
 }
 export interface ProductCardProps extends Product { rank?: number }
 /** Carte produit : visuel carré, nom, prix, boutique. Le lien mène à la fiche sur la boutique. */

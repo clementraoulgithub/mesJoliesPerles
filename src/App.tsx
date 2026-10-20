@@ -202,21 +202,65 @@ function TopsPanel() {
       <ol key={shop} className="dash-products">
         {products.map((p, n) => (
           <li key={p.id}>
-            <a className="dash-product" href={p.href} target="_blank" rel="noopener noreferrer">
-              <span className="dash-product-media">
-                {p.imageSrc && <img src={p.imageSrc} alt="" />}
+            <div className="dash-product">
+              <Gallery images={p.images ?? (p.imageSrc ? [p.imageSrc] : [])} href={p.href} name={p.name}>
                 <span className="dash-product-rank">{n + 1}</span>
                 {p.badge && <Badge tone={p.badge.tone} className="dash-product-badge">{p.badge.label}</Badge>}
-              </span>
-              <span className="dash-product-meta">
+              </Gallery>
+              <a className="dash-product-meta" href={p.href} target="_blank" rel="noopener noreferrer">
                 <span className="dash-product-name">{p.name}</span>
                 <span className="dash-product-shop"><BrandIcon brand={shop === 'etsy' ? 'etsy' : 'ungrandmarche'} size={shop === 'etsy' ? 14 : 20} />Voir la fiche</span>
-              </span>
-            </a>
+              </a>
+            </div>
           </li>
         ))}
       </ol>
     </section>
+  );
+}
+
+const GALLERY_DELAY = 1800;
+
+/** Photos d'un bijou : défilent au survol, flèches et points, glisser au doigt (défilement natif aimanté). */
+function Gallery({ images, href, name, children }: { images: string[]; href: string; name: string; children?: ReactNode }) {
+  const track = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(0);
+  const [hover, setHover] = useState(false);
+  const many = images.length > 1;
+
+  const go = (n: number) => {
+    const el = track.current;
+    if (!el) return;
+    const k = (n + images.length) % images.length;
+    setI(k);
+    el.scrollTo({ left: k * el.clientWidth, behavior: 'smooth' });
+  };
+  useEffect(() => {
+    if (!hover || !many) return;
+    const t = window.setTimeout(() => go(i + 1), GALLERY_DELAY);
+    return () => window.clearTimeout(t);
+  }, [hover, i, many]);
+
+  return (
+    <div className="dash-gallery" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <div ref={track} className="dash-gallery-track"
+        onScroll={e => setI(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}>
+        {images.map((src, n) => (
+          <a key={src} href={href} target="_blank" rel="noopener noreferrer" tabIndex={n === i ? 0 : -1}
+            aria-label={`${name} — photo ${n + 1} sur ${images.length}`}>
+            <img src={src} alt="" loading={n ? 'lazy' : undefined} draggable={false} />
+          </a>
+        ))}
+      </div>
+      {children}
+      {many && <>
+        <button type="button" className="dash-gallery-btn is-prev" onClick={() => go(i - 1)} aria-label="Photo précédente"><Icon name="chevron-left" size={16} /></button>
+        <button type="button" className="dash-gallery-btn is-next" onClick={() => go(i + 1)} aria-label="Photo suivante"><Icon name="chevron-right" size={16} /></button>
+        <span className="dash-gallery-dots" aria-hidden="true">
+          {images.map((src, n) => <i key={src} className={n === i ? 'is-on' : undefined} />)}
+        </span>
+      </>}
+    </div>
   );
 }
 
