@@ -7,7 +7,7 @@ const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean)
 export type IconName =
   | 'arrow-up-right' | 'chevron-left' | 'chevron-right' | 'star' | 'heart'
   | 'pin' | 'clock' | 'calendar' | 'menu' | 'close' | 'bag' | 'chat'
-  | 'truck' | 'shield' | 'gift' | 'sparkle' | 'flag' | 'quote' | 'trophy';
+  | 'truck' | 'shield' | 'gift' | 'sparkle' | 'flag' | 'quote' | 'flame';
 
 const ICON_PATHS: Record<IconName, string> = {
   'arrow-up-right': 'M7 17 17 7M8 7h9v9',
@@ -27,7 +27,7 @@ const ICON_PATHS: Record<IconName, string> = {
   gift: 'M4.5 11h15v9h-15zM3.5 7.5h17V11h-17zM12 7.5V20M12 7.5C10.5 4.5 7 4.5 7 6.2S10 7.5 12 7.5zM12 7.5c1.5-3 5-3 5-1.3S14 7.5 12 7.5z',
   sparkle: 'M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9zM18.5 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
   flag: 'M5 21V4M5 4.5h12l-2.5 4 2.5 4H5',
-  trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1.5A3.5 3.5 0 0 0 8.5 11M16 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 13v4M8.5 20h7M9.5 17h5v3h-5z',
+  flame: 'M12 21c3.6 0 6-2.5 6-6 0-4-3-6.5-4.5-10-1 2.6-2.4 3.8-3.6 5C8.6 8.6 8 7.5 8 6c-1.6 1.6-2 3.6-2 5.5V15c0 3.5 2.4 6 6 6zM12 21c-1.7 0-3-1.2-3-3 0-1.9 1.6-2.8 3-4.5 1.4 1.7 3 2.6 3 4.5 0 1.8-1.3 3-3 3z',
   quote: 'M9.5 7C6.5 8 5 10.5 5 14v3h4.5v-4.5H7c0-2.2 1-3.6 3-4.3zM18.5 7c-3 1-4.5 3.5-4.5 7v3h4.5v-4.5H16c0-2.2 1-3.6 3-4.3z',
 };
 
@@ -255,7 +255,7 @@ export function ShopLinks({ shops }: ShopLinksProps) {
 /* ───────────────────────── Produits ───────────────────────── */
 
 export interface Product {
-  id: string; name: string; price: string; href: string;
+  id: string; name: string; price?: string; href: string;
   shop?: string; imageSrc?: string; seed?: number; badge?: { tone: BadgeTone; label: string };
 }
 export interface ProductCardProps extends Product { rank?: number }
@@ -271,7 +271,7 @@ export function ProductCard({ name, price, href, shop, imageSrc, seed = 1, badge
       <span className="jp-product-info">
         <span className="jp-product-name">{name}</span>
         <span className="jp-product-meta">
-          <span className="jp-product-price">{price}</span>
+          {price && <span className="jp-product-price">{price}</span>}
           {shop && <span className="jp-product-shop">sur {shop} <Icon name="arrow-up-right" size={13} /></span>}
         </span>
       </span>

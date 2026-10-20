@@ -27,7 +27,7 @@ export default function App() {
           <div className="dash-brand">
             <img className="dash-logo" src="/marque/logo.jpeg" alt="" />
             <div>
-              <h1 id="h-intro" className="dash-name">Les Jolies Perles</h1>
+              <h1 id="h-intro" className="dash-name">Les-jolies-perles</h1>
               <p className="dash-tag">La passion, la création · depuis 2017</p>
             </div>
           </div>
@@ -49,10 +49,10 @@ export default function App() {
           </dl>
           <div className="dash-shops">
             <a className="dash-shop dash-shop-etsy" href={ETSY} target="_blank" rel="noopener noreferrer">
-              <BrandIcon brand="etsy" size={20} /><span><small>Acheter sur</small>Etsy</span>
+              <BrandIcon brand="etsy" size={20} /><span><small>Commander sur</small>Etsy</span>
             </a>
             <a className="dash-shop dash-shop-ugm" href={UGM} target="_blank" rel="noopener noreferrer">
-              <BrandIcon brand="ungrandmarche" size={28} /><span><small>Acheter sur</small>Un grand marché</span>
+              <BrandIcon brand="ungrandmarche" size={24} /><span><small>Commander sur</small>Un grand marché</span>
             </a>
           </div>
         </section>
@@ -186,7 +186,7 @@ function TopsPanel() {
     <section className="dash-tops" aria-labelledby="h-tops" aria-roledescription="carrousel"
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="dash-panel-head">
-        <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="trophy" size={18} /></span>Tops ventes</h2>
+        <h2 id="h-tops" className="dash-h"><span className="dash-h-icon dash-h-gold"><Icon name="flame" size={18} /></span>Tops ventes</h2>
         <div className="jp-chips" role="group" aria-label="Boutique">
           {([['etsy', 'Etsy'], ['ugm', 'Un grand marché']] as const).map(([k, l]) => (
             <button key={k} type="button" className="jp-chip dash-tab" aria-pressed={shop === k} onClick={() => setShop(k)}>
@@ -205,9 +205,8 @@ function TopsPanel() {
                 <span className="dash-product-rank">{n + 1}</span>
                 {p.badge && <Badge tone={p.badge.tone} className="dash-product-badge">{p.badge.label}</Badge>}
               </span>
-              <span className="dash-product-name">{p.name}</span>
               <span className="dash-product-meta">
-                <span className="dash-product-price">{p.price}</span>
+                <span className="dash-product-name">{p.name}</span>
                 <span className="dash-product-shop"><BrandIcon brand={shop === 'etsy' ? 'etsy' : 'ungrandmarche'} size={shop === 'etsy' ? 14 : 20} />Voir la fiche</span>
               </span>
             </a>
