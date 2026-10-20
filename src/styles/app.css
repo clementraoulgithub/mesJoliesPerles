@@ -1,8 +1,10 @@
 /* Styles propres à la page : tableau de bord sur un seul écran et visionneuse de stories. */
 body { margin: 0; background: var(--nacre); }
+/* « Réduire les animations » : on garde les fondus, on retire les déplacements à l'apparition */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .dash-review, .dash-products { animation-name: dash-fade-soft !important; }
 }
+@keyframes dash-fade-soft { from { opacity: 0; } }
 
 /* Visionneuse de stories */
 .sv { position: fixed; inset: 0; z-index: 30; background: rgba(20, 14, 11, 0.82); display: grid; place-items: center; padding: 16px; }
@@ -69,7 +71,7 @@ body { margin: 0; background: var(--nacre); }
 /* Boutons côte à côte ; texte proportionnel à la largeur du bloc, l'un sous l'autre seulement si le bloc est très étroit */
 .dash-shops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 @container (max-width: 300px) { .dash-shops { grid-template-columns: minmax(0, 1fr); } }
-.dash-shop { display: flex; align-items: center; gap: clamp(6px, 2cqi, 12px); min-height: 56px; min-width: 0; padding: var(--space-2) clamp(8px, 2.6cqi, 12px); border-radius: var(--radius-md); text-decoration: none; font-size: clamp(13px, 3.9cqi, 16px); font-weight: 600; line-height: 20px; transition: transform .15s, box-shadow .15s, background-color .15s; }
+.dash-shop { display: flex; align-items: center; gap: clamp(6px, 2cqi, 12px); min-height: 56px; min-width: 0; padding: var(--space-2) clamp(8px, 2.6cqi, 12px); border-radius: var(--radius-md); text-decoration: none; font-size: clamp(13px, 3.9cqi, 16px); font-weight: 600; line-height: 20px; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .dash-shop span { display: flex; flex-direction: column; white-space: nowrap; }
 .dash-shop small { font-size: clamp(10px, 2.9cqi, 12px); line-height: 15px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
 .dash-shop:hover { transform: translateY(-1px); box-shadow: var(--shadow-lift); }
@@ -78,7 +80,7 @@ body { margin: 0; background: var(--nacre); }
 .dash-shop-ugm { background: var(--nacre-raised); color: var(--ink); box-shadow: var(--shadow-card); }
 .dash-shop-ugm .jp-brand-ugm { border-radius: var(--radius-pill); }
 .dash-socials { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--space-2); }
-.dash-socials a { width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--radius-pill); color: var(--ink); background: var(--sable); transition: background-color .15s, color .15s; }
+.dash-socials a { width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--radius-pill); color: var(--ink); background: var(--sable); transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
 .dash-socials a:hover { background: var(--corail); color: #fff; }
 .dash-socials a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
@@ -88,12 +90,12 @@ body { margin: 0; background: var(--nacre); }
 .dash-tab { position: relative; overflow: hidden; isolation: isolate; }
 /* Le bouton actif se remplit doucement : temps restant avant l'autre boutique */
 .dash-tab-progress { position: absolute; inset: 0; z-index: -1; background: rgba(255, 255, 255, 0.16); transform-origin: left; animation: dash-progress linear forwards; }
-.dash-products { animation: dash-fade .5s ease; }
+.dash-products { animation: dash-fade var(--dur) var(--ease); }
 .dash-products { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dash-products li { min-height: 0; }
 .dash-product { height: 100%; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: var(--ink); }
-.dash-product-media { position: relative; flex: 1; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--nacre-raised); margin-bottom: var(--space-2); }
-.dash-product-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.dash-product-media { isolation: isolate; position: relative; flex: 1; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--nacre-raised); margin-bottom: var(--space-2); }
+.dash-product-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); will-change: transform; backface-visibility: hidden; }
 .dash-product:hover .dash-product-media img { transform: scale(1.04); }
 .dash-product-rank { position: absolute; left: var(--space-3); top: var(--space-1); font: 500 40px/48px var(--font-display); color: var(--laiton); text-shadow: 0 0 10px var(--nacre); }
 .dash-product-badge { position: absolute; right: var(--space-3); top: var(--space-3); }
@@ -134,9 +136,9 @@ body { margin: 0; background: var(--nacre); }
 .dash-arrow:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* Carte d'avis : photo du bijou + citation */
-.dash-review { margin: 0; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(84px, 32%) 1fr; gap: var(--space-4); padding: var(--space-3); background: var(--nacre-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); animation: dash-fade .5s ease; }
-.dash-review-media { display: block; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
-.dash-review-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.dash-review { margin: 0; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(84px, 32%) 1fr; gap: var(--space-4); padding: var(--space-3); background: var(--nacre-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); animation: dash-fade var(--dur) var(--ease); }
+.dash-review-media { isolation: isolate; display: block; min-height: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
+.dash-review-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); will-change: transform; backface-visibility: hidden; }
 .dash-review-media:hover img { transform: scale(1.05); }
 .dash-review-body { position: relative; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; min-height: 0; padding: var(--space-2) var(--space-1) 0 0; }
 .dash-review-body::before { content: "\201C"; position: absolute; right: 0; top: -14px; font: 600 72px/1 var(--font-display); color: var(--corail); opacity: .18; pointer-events: none; }
@@ -148,7 +150,7 @@ body { margin: 0; background: var(--nacre); }
 .dash-review .jp-avatar { width: 32px; height: 32px; font-size: 16px; }
 .dash-review .jp-rating { vertical-align: -1px; }
 .dash-review-src { flex: none; }
-.dash-dot { position: relative; width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--line-strong); opacity: .5; cursor: pointer; overflow: hidden; transition: width .3s, opacity .3s; }
+.dash-dot { position: relative; width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--line-strong); opacity: .5; cursor: pointer; overflow: hidden; transition: width var(--dur) var(--ease), opacity var(--dur) var(--ease); }
 .dash-dot.is-on { width: 32px; opacity: 1; background: var(--line); }
 .dash-dot.is-on:not(:has(i)) { background: var(--corail); }
 .dash-dot i { position: absolute; inset: 0; background: var(--corail); transform-origin: left; animation: dash-progress linear forwards; }
@@ -197,8 +199,8 @@ body { margin: 0; background: var(--nacre); }
 /* Instagram : 3 vignettes carrées */
 .dash-thumbs { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; display: grid; gap: var(--space-2); grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
 .dash-thumbs li { min-height: 0; }
-.dash-thumbs li, .dash-thumbs a { display: block; height: 100%; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
-.dash-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.dash-thumbs li, .dash-thumbs a { isolation: isolate; display: block; height: 100%; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); }
+.dash-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); will-change: transform; backface-visibility: hidden; }
 .dash-thumbs a:hover img { transform: scale(1.05); }
 
 .dash-bottom { display: none; }

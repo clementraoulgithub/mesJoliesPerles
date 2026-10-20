@@ -36,5 +36,9 @@
   --radius-pill: 999px;
   --font-display: "Cormorant Garamond", "Cormorant", Georgia, serif;
   --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
+  /* Mouvements : courbe douce (décélération), durées courte et normale */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 0.2s;
+  --dur: 0.5s;
   color-scheme: light;
 }
