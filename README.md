@@ -20,7 +20,7 @@ Le dossier `dist/` produit par `npm run build` se dépose tel quel sur n'importe
 | Je veux changer…                    | Fichier                      |
 | ----------------------------------- | ---------------------------- |
 | Les liens des boutiques             | `src/data/shops.ts`          |
-| Les tops ventes                     | `src/data/products.ts`       |
+| Les tops ventes (Etsy et UGM)       | `src/data/products.ts`       |
 | Les dates des marchés               | l'agenda des marchés (voir plus bas) |
 | Les comptes et le flux Instagram    | `src/data/social.ts`         |
 | Les avis et la note moyenne         | `src/data/reviews.ts`        |
@@ -73,7 +73,7 @@ L'URL du flux est publique : elle ne donne accès à rien d'autre que les public
 
 ```
 src/
-  App.tsx                 la page : en-tête, hero, créatrice, tops ventes, marchés, réseaux, avis, pied de page
+  App.tsx                 la page sur un seul écran : boutiques, créatrice, avis, tops ventes, marchés, Instagram
   components/index.tsx    les composants du design system (Button, MarketCalendar, StoryRow…)
   components/StoryViewer.tsx  visionneuse plein écran des stories
   hooks/useActiveSection.ts   souligne dans le menu la section affichée
