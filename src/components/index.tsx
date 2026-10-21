@@ -125,6 +125,8 @@ export interface MarketCalendarProps {
   initialMonth?: string;
   /** Today's ISO date, used to dim past dates; defaults to today. */
   today?: string;
+  /** Called when a market picture is clicked (to show it full size). */
+  onImage?: (src: string, alt: string) => void;
 }
 
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -136,7 +138,7 @@ export const mapsUrl = (e: MarketEvent) =>
   'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([e.place, e.city].filter(Boolean).join(', '));
 
 /** Monthly calendar of local and Christmas markets, with filters and the list of the month's dates. */
-export function MarketCalendar({ events, initialMonth, today }: MarketCalendarProps) {
+export function MarketCalendar({ events, initialMonth, today, onImage }: MarketCalendarProps) {
   const i18n = useI18n();
   const { t } = i18n;
   const now = today ?? new Date().toISOString().slice(0, 10);
@@ -222,7 +224,13 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
                   </a>
                 )}
               </span>
-              {e.image && <img className="jp-event-img" src={e.image} alt="" loading="lazy" onError={ev => { ev.currentTarget.parentElement?.classList.remove('has-img'); ev.currentTarget.remove(); }} />}
+              {e.image && (
+                <button type="button" className="jp-event-img" onClick={() => onImage?.(e.image!, t.poster(i18n.title(e.title)))}
+                  aria-label={t.enlarge}>
+                  <img src={e.image} alt="" loading="lazy"
+                    onError={ev => { ev.currentTarget.closest('li')?.classList.remove('has-img'); ev.currentTarget.parentElement?.remove(); }} />
+                </button>
+              )}
             </li>
           ))}
         </ul>

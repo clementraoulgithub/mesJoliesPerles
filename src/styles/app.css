@@ -226,6 +226,19 @@ body { margin: 0; background: var(--nacre); }
 
 .dash-bottom { display: none; }
 
+/* Full-size picture (lightbox) */
+.dash-lightbox { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: var(--space-6); border: 0; background: transparent; display: none; place-items: center; cursor: zoom-out; }
+.dash-lightbox[open] { display: grid; }
+.dash-lightbox::backdrop { background: rgba(20, 14, 11, 0.86); }
+.dash-lightbox img { max-width: min(100%, 1100px); max-height: calc(100dvh - 48px); object-fit: contain; border-radius: var(--radius-md); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); animation: dash-zoom-in var(--dur) var(--ease); }
+@keyframes dash-zoom-in { from { opacity: 0; transform: scale(.96); } }
+.dash-lightbox-close { position: fixed; top: var(--space-4); right: var(--space-4); width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.92); color: var(--ink); cursor: pointer; }
+.dash-lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+button.dash-next-visual { display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in; font: inherit; color: inherit; text-align: left; }
+button.dash-next-visual:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button.dash-next-visual img { transition: transform var(--dur) var(--ease); }
+button.dash-next-visual:hover img { transform: scale(1.04); }
+
 /* Modal windows (full calendar, contact) */
 .dash-dialog { width: min(920px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: var(--space-6); border: 0; border-radius: var(--radius-lg); background: var(--nacre); color: var(--ink); box-shadow: var(--shadow-lift); }
 .dash-dialog::backdrop { background: rgba(20, 14, 11, 0.55); }

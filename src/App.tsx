@@ -23,6 +23,8 @@ export default function App() {
   const events = useMemo(() => withImages(agenda.events, instagram.posts), [agenda.events, instagram.posts]);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [zoom, setZoom] = useState<{ src: string; alt: string } | null>(null);
+  const openImage = (src: string, alt: string) => setZoom({ src, alt });
   const introRef = useFit<HTMLElement>(5, [lang]);
   const agendaRef = useFit<HTMLElement>(4, [lang, events]);
 
@@ -82,7 +84,7 @@ export default function App() {
             <h2 id="h-agenda" className="dash-h"><span className="dash-h-icon"><Icon name="calendar" size={18} /></span>{t.nextMarkets}</h2>
             <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}><Icon name="calendar" size={15} />{t.calendar}</button>
           </div>
-          {agenda.status === 'loading' ? <MarketsLoading /> : <NextMarkets events={events} />}
+          {agenda.status === 'loading' ? <MarketsLoading /> : <NextMarkets events={events} onImage={openImage} />}
         </section>
 
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
@@ -125,13 +127,15 @@ export default function App() {
       </footer>
 
       <Dialog title={t.calendarTitle} open={calendarOpen} onClose={() => setCalendarOpen(false)}>
-        {agenda.status === 'loading' ? <MarketsLoading /> : <MarketCalendar key={agenda.status} events={events} />}
+        {agenda.status === 'loading' ? <MarketsLoading /> : <MarketCalendar key={agenda.status} events={events} onImage={openImage} />}
       </Dialog>
 
       <Dialog title={t.contact} narrow open={contactOpen} onClose={() => setContactOpen(false)}>
         <p className="jp-contact-intro">{t.contactIntro}</p>
         <ContactForm formId={formspreeId} onDone={() => setContactOpen(false)} />
       </Dialog>
+
+      <Lightbox image={zoom} onClose={() => setZoom(null)} />
     </div>
   );
 }
@@ -366,7 +370,7 @@ function MarketsLoading() {
 }
 
 /** The next market as a card, the following two as a list; with no upcoming date, the towns already visited. */
-function NextMarkets({ events }: { events: MarketEvent[] }) {
+function NextMarkets({ events, onImage }: { events: MarketEvent[]; onImage: (src: string, alt: string) => void }) {
   const i18n = useI18n();
   const { t } = i18n;
   const now = today();
@@ -410,10 +414,11 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
     <>
       <article className={'dash-next is-' + next.kind + (showImg ? ' has-img' : '')}>
         {showImg ? (
-          <div className="dash-next-visual">
+          <button type="button" className="dash-next-visual" aria-label={t.enlarge}
+            onClick={() => onImage(next.image!, t.poster(i18n.title(next.title)))}>
             <img src={next.image} alt={t.poster(i18n.title(next.title))} onError={() => setImgFailed(true)} />
             <span className="dash-next-chip"><span className="dash-next-chip-dow">{i18n.weekdayShort(next.date)} </span>{i18n.dayRange(next)} {i18n.monthShort(next.end ?? next.date)}</span>
-          </div>
+          </button>
         ) : (
           <div className="dash-next-date" aria-hidden="true">
             <span className="dash-next-dow">{i18n.weekdayShort(next.date)}</span>
@@ -448,6 +453,24 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
         </ul>
       )}
     </>
+  );
+}
+
+/** Full-size picture over everything (also over the calendar window). Click or Escape closes it. */
+function Lightbox({ image, onClose }: { image: { src: string; alt: string } | null; onClose: () => void }) {
+  const { t } = useI18n();
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (image && !d.open) d.showModal();
+    if (!image && d.open) d.close();
+  }, [image]);
+  return (
+    <dialog ref={ref} className="dash-lightbox" aria-label={image?.alt} onClose={onClose} onClick={onClose}>
+      {image && <img src={image.src} alt={image.alt} />}
+      <button type="button" className="dash-lightbox-close" onClick={onClose} aria-label={t.close} autoFocus><Icon name="close" /></button>
+    </dialog>
   );
 }
 

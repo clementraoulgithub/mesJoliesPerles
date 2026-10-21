@@ -67,7 +67,10 @@
 .jp-event-title { font-weight: 600; margin-top: 2px; }
 .jp-event-meta { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-muted); }
 .jp-event.has-img { grid-template-columns: 64px 1fr 112px; }
-.jp-event-img { width: 112px; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-md); background: var(--sable); }
+.jp-event-img { width: 112px; aspect-ratio: 1; padding: 0; border: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--sable); cursor: zoom-in; }
+.jp-event-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--dur) var(--ease); }
+.jp-event-img:hover img { transform: scale(1.05); }
+.jp-event-img:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 @media (max-width: 640px) { .jp-event.has-img { grid-template-columns: 64px 1fr 72px; } .jp-event-img { width: 72px; } }
 .jp-event-link { display: inline-flex; align-items: center; gap: 2px; margin-top: 2px; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--corail-ink); text-decoration: none; }
 .jp-event-link:hover { text-decoration: underline; }
