@@ -81,6 +81,10 @@ This id is public: it only allows sending a message. Without an id, the form is 
 
 `index.html` holds the Open Graph tags read by WhatsApp, Facebook, iMessage, LinkedIn… (title, description, `public/og-image.jpg` at 1200×630). Link previews need absolute URLs: `%SITE_URL%` is filled in at build time with Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`). With a custom domain, set the Vercel variable `SITE_URL` (e.g. `https://www.lesjoliesperles.fr`).
 
+## Search engines
+
+The build also writes `robots.txt` and `sitemap.xml` (with the same absolute URL), and `index.html` holds a canonical link and schema.org structured data (`Store`: description, logo, rating, shop and social links). Update the rating/review count there when they change.
+
 ## Live Instagram posts
 
 The "Follow me" block shows the latest Instagram posts, read on every visit from a [Behold](https://behold.so) feed (`src/hooks/useInstagramFeed.ts`). The number of followers in the introduction comes from the same feed.

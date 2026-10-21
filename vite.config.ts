@@ -28,13 +28,26 @@ function marketsApi(icsUrl?: string): Plugin {
 }
 
 /**
- * Fills %SITE_URL% in index.html (link-preview tags need absolute URLs).
+ * Fills %SITE_URL% in index.html (link-preview and SEO tags need absolute URLs) and writes robots.txt / sitemap.xml.
  * Uses SITE_URL when set (custom domain), otherwise Vercel's production domain, available at build time.
  */
 function siteUrl(env: Record<string, string>): Plugin {
   const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   const url = (env.SITE_URL || process.env.SITE_URL || (vercel ? `https://${vercel}` : 'http://localhost:5173')).replace(/\/$/, '');
-  return { name: 'site-url', transformIndexHtml: html => html.split('%SITE_URL%').join(url) };
+  return {
+    name: 'site-url',
+    // 'pre': replaced before Vite parses the HTML links (a raw %SITE_URL% is not a valid URL)
+    transformIndexHtml: { order: 'pre', handler: html => html.split('%SITE_URL%').join(url) },
+    // robots.txt and sitemap.xml for search engines, with the same absolute URL
+    generateBundle() {
+      const today = new Date().toISOString().slice(0, 10);
+      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${url}/sitemap.xml\n` });
+      this.emitFile({
+        type: 'asset', fileName: 'sitemap.xml',
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${url}/</loc><lastmod>${today}</lastmod></url>\n</urlset>\n`,
+      });
+    },
+  };
 }
 
 export default defineConfig(({ mode }) => {
