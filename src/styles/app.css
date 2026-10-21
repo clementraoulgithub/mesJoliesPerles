@@ -40,8 +40,9 @@ body { margin: 0; background: var(--nacre); }
 .dash-name { margin: 0; font: 500 clamp(22px, 12.5cqi, 46px)/1.05 var(--font-display); letter-spacing: -0.01em; white-space: nowrap; }
 .dash-tag { margin: 2px 0 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--intro-accent); }
 .dash-lead { margin: 0; font-size: 16px; line-height: 24px; color: var(--intro-muted); }
+.dash-lead-short { display: none; }
 .dash-features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-4); font-size: 14px; line-height: 20px; }
-.dash-features li { display: flex; align-items: center; gap: var(--space-2); min-width: 0; white-space: nowrap; }
+.dash-features li { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .dash-features .jp-icon { flex: none; width: 28px; height: 28px; padding: 6px; border-radius: var(--radius-pill); background: var(--intro-chip); color: var(--intro-accent); }
 .dash-tagrow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); flex-wrap: wrap; margin-top: 4px; }
 .dash-tagrow .dash-tag { margin: 0; }
@@ -220,10 +221,32 @@ body { margin: 0; background: var(--nacre); }
 .dash-dialog.is-narrow { width: min(560px, calc(100vw - 32px)); }
 .dash-dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
 
+/* Fit-to-box steps, added by useFit() in App.tsx while a block overflows (any window size) */
+.dash-intro.fit-1 .dash-lead-long { display: none; }
+.dash-intro.fit-1 .dash-lead-short { display: inline; }
+.dash-intro.fit-2 .dash-features { display: none; }
+.dash-intro.fit-3 { gap: 8px; padding-top: var(--space-5, 20px); padding-bottom: var(--space-5, 20px); }
+.dash-intro.fit-3 .dash-stats div { padding: 4px 0; }
+.dash-intro.fit-3 .dash-stats dd { font-size: 24px; line-height: 28px; }
+.dash-intro.fit-4 .dash-shop { min-height: 44px; }
+.dash-intro.fit-4 .dash-shop small { display: none; }
+.dash-intro.fit-5 .dash-lead { display: none; }
+.dash-agenda.fit-1 .dash-events li:nth-child(2) { display: none; }
+.dash-agenda.fit-2 .dash-events { display: none; }
+.dash-agenda.fit-3 .dash-next { padding: var(--space-2); gap: var(--space-3); }
+.dash-agenda.fit-3 .dash-next-visual { min-height: 96px; }
+.dash-agenda.fit-3 .dash-next-where small { display: none; }
+.dash-agenda.fit-4 .dash-next-when { display: none; }
+.dash-reviews.fit-1 .dash-review blockquote { -webkit-line-clamp: 3; }
+.dash-reviews.fit-2 .dash-review blockquote { -webkit-line-clamp: 2; }
+.dash-reviews.fit-3 .dash-review-tr { display: none; }
+
 /* Medium-height screens (1280×800, 1366×768 laptops): more room for the top band */
-@media (max-height: 880px) and (min-width: 901px) {
+@media (max-height: 880px) and (min-width: 901px) and (min-aspect-ratio: 6/5) {
   .dash-main { grid-template-rows: minmax(0, 1.85fr) minmax(0, 1fr); }
-  .dash-lead { font-size: 15px; line-height: 22px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .dash-lead { font-size: 15px; line-height: 22px; }
+  .dash-lead-long { display: none; }
+  .dash-lead-short { display: inline; }
   .dash-intro { gap: 10px; }
   /* Only the featured market; the following ones stay one click away in the calendar */
   .dash-events { display: none; }
@@ -238,11 +261,13 @@ body { margin: 0; background: var(--nacre); }
 }
 
 /* Medium-width screens */
-@media (max-width: 1180px) and (min-width: 901px) {
+@media (max-width: 1180px) and (min-width: 901px) and (min-aspect-ratio: 6/5) {
   .dash-next-chip-dow { display: none; }
   .dash-main { gap: var(--space-6) var(--space-8); padding: var(--space-6); grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr); }
   .dash-intro { padding: var(--space-6); }
-  .dash-lead { display: none; }
+  .dash-lead { font-size: 14px; line-height: 20px; }
+  .dash-lead-long { display: none; }
+  .dash-lead-short { display: inline; }
   .dash-intro { gap: var(--space-3); }
   .dash-features { gap: var(--space-2) var(--space-3); font-size: 13px; line-height: 16px; }
   .dash-features li { white-space: normal; }
@@ -267,10 +292,12 @@ body { margin: 0; background: var(--nacre); }
 }
 
 /* Short screens */
-@media (max-height: 760px) and (min-width: 901px) {
+@media (max-height: 760px) and (min-width: 901px) and (min-aspect-ratio: 6/5) {
   .dash-main { padding-top: var(--space-6); padding-bottom: var(--space-6); row-gap: var(--space-6); }
   .dash-intro { gap: var(--space-3); padding: var(--space-6); }
-  .dash-lead { display: none; }
+  .dash-lead { font-size: 14px; line-height: 20px; }
+  .dash-lead-long { display: none; }
+  .dash-lead-short { display: inline; }
   .dash-stats dd { font-size: 28px; line-height: 32px; }
   .dash-features .jp-icon { width: 24px; height: 24px; padding: 4px; }
   .dash-panel { padding-top: var(--space-4); gap: var(--space-3); }
@@ -290,17 +317,24 @@ body { margin: 0; background: var(--nacre); }
   .dash-nomarket-title { margin: 0; font-size: 19px; line-height: 23px; }
 }
 
-/* Very small desktop screens (960×600…): keep the name, figures and buttons */
-@media (max-height: 640px) and (min-width: 901px) {
+/* Narrow desktop screens (≈1024 px): the description matters more than the commitments list */
+@media (max-width: 1100px) and (min-width: 901px) and (min-aspect-ratio: 6/5) {
   .dash-features { display: none; }
-  .dash-next-visual { min-height: 84px; }
-  .dash-next-where small { display: none; }
-  .dash-next-when { display: none; }
-  .dash-intro { gap: 8px; }
 }
 
-/* Portrait tablets and phones: blocks stack, the page scrolls, shop buttons stay at the bottom */
-@media (max-width: 900px) {
+/* Very short desktop screens (≈600 px high): too little room for one screen, the page scrolls slightly instead */
+@media (max-height: 640px) and (min-width: 901px) and (min-aspect-ratio: 6/5) {
+  .dash { height: auto; overflow: visible; }
+  .dash-main { height: auto; grid-template-rows: auto auto; }
+  .dash-gallery { flex: none; aspect-ratio: 1; }
+  .dash-thumbs { grid-template-rows: none; }
+  .dash-thumbs li { aspect-ratio: 1; }
+  .dash-lead-long { display: inline; }
+  .dash-lead-short { display: none; }
+}
+
+/* Phones and portrait tablets (any screen taller than wide): blocks stack, the page scrolls, shop buttons stay at the bottom */
+@media (max-width: 900px), (max-aspect-ratio: 6/5) {
   .dash { height: auto; overflow: visible; padding-bottom: 72px; }
   .dash-main { height: auto; padding: var(--space-6) var(--space-4); gap: var(--space-8); grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "intro" "tops" "agenda" "reviews" "insta"; }
   .dash-intro { padding: var(--space-6); }
@@ -311,9 +345,32 @@ body { margin: 0; background: var(--nacre); }
   .dash-products { gap: var(--space-4); }
   .dash-gallery { flex: none; aspect-ratio: 1; }
   .dash-product-meta { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .dash-thumbs { grid-template-rows: none; }
+  .dash-thumbs li { aspect-ratio: 1; }
   .dash-product-name { font-size: 14px; }
-    .dash-bottom { display: flex; gap: var(--space-3); position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--nacre); }
+  .dash-bottom { display: flex; gap: var(--space-3); position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--nacre); }
   .dash-bottom .dash-shop { flex: 1; justify-content: center; min-height: 48px; }
   .dash-bottom .dash-shop span { flex: none; }
   .dash-bottom .dash-shop-ugm { border: 1px solid var(--line-strong); }
+}
+
+/* Portrait tablets: two columns for the bottom blocks, Instagram on one row */
+@media (min-width: 640px) and (max-aspect-ratio: 6/5), (min-width: 640px) and (max-width: 900px) {
+  .dash-main { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "intro intro" "tops tops" "agenda reviews" "insta insta"; gap: var(--space-8) var(--space-6); padding: var(--space-8) var(--space-6); }
+  .dash-thumbs { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: none; }
+  .dash-thumbs li { aspect-ratio: 1; }
+  /* Wide but not too tall product photos */
+  .dash-gallery { aspect-ratio: 4 / 3; }
+  .dash-bottom { padding-left: var(--space-6); padding-right: var(--space-6); }
+  .dash-bottom .dash-shop { flex: 0 1 280px; }
+  .dash-bottom { justify-content: center; }
+}
+
+/* Small phones: tighter headings so titles and links stay on one line */
+@media (max-width: 420px) {
+  .dash-h { font-size: 22px; line-height: 26px; gap: var(--space-2); }
+  .dash-h-icon { width: 30px; height: 30px; }
+  .dash-intro { padding: var(--space-5, 20px); }
+  .dash-stats dd { font-size: 24px; line-height: 30px; }
+  .dash-stats div + div { padding-left: var(--space-3); }
 }

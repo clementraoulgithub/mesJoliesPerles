@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type DependencyList, type ReactNode } from 'react';
 import { Badge, Icon, MarketCalendar, Rating, mapsUrl, type MarketEvent, type Post, type Product } from './components';
 import { BrandIcon, BRAND_LABEL } from './components/BrandIcon';
 import { ContactForm } from './components/ContactForm';
@@ -24,11 +24,13 @@ export default function App() {
   const events = useMemo(() => withImages(agenda.events, instagram.posts), [agenda.events, instagram.posts]);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const introRef = useFit<HTMLElement>(5, [lang]);
+  const agendaRef = useFit<HTMLElement>(4, [lang, events]);
 
   return (
     <div className="jp-root dash">
       <main className="dash-main">
-        <section className="dash-intro" aria-labelledby="h-intro">
+        <section ref={introRef} className="dash-intro" aria-labelledby="h-intro">
           <div className="dash-brand">
             <img className="dash-logo" src="/marque/logo.jpeg" alt="" />
             <div className="dash-brand-text">
@@ -45,7 +47,11 @@ export default function App() {
             </div>
           </div>
           {/* Summary of the Un grand marché and Etsy descriptions and the Instagram bio */}
-          <p className="dash-lead">{t.lead}</p>
+          <p className="dash-lead">
+            {/* Full text on roomy screens, a shorter complete version on tight ones (never cut mid-sentence) */}
+            <span className="dash-lead-long">{t.lead}</span>
+            <span className="dash-lead-short">{t.leadShort}</span>
+          </p>
           <ul className="dash-features">
             <li><Icon name="sparkle" size={16} />{t.featHandmade}</li>
             <li><Icon name="flag" size={16} />{t.featFrance}</li>
@@ -72,7 +78,7 @@ export default function App() {
 
         <ReviewsCarousel />
 
-        <section className="dash-panel dash-agenda" aria-labelledby="h-agenda">
+        <section ref={agendaRef} className="dash-panel dash-agenda" aria-labelledby="h-agenda">
           <div className="dash-panel-head">
             <h2 id="h-agenda" className="dash-h"><span className="dash-h-icon"><Icon name="calendar" size={18} /></span>{t.nextMarkets}</h2>
             <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}><Icon name="calendar" size={15} />{t.calendar}</button>
@@ -139,6 +145,7 @@ function ReviewsCarousel() {
   const { t, lang } = i18n;
   const [i, setI] = useState(0);
   const [paused, hoverProps] = useHover();
+  const fitRef = useFit<HTMLElement>(3, [lang, i]);
 
   useEffect(() => {
     if (paused) return;
@@ -149,7 +156,7 @@ function ReviewsCarousel() {
   const r = reviews[i];
   const product = r.product && localized(lang, r.product, r.productEn);
   return (
-    <section className="dash-panel dash-reviews" aria-labelledby="h-reviews" aria-roledescription={t.carousel}
+    <section ref={fitRef} className="dash-panel dash-reviews" aria-labelledby="h-reviews" aria-roledescription={t.carousel}
       {...hoverProps}>
       <div className="dash-panel-head">
         <h2 id="h-reviews" className="dash-h"><span className="dash-h-icon"><Icon name="star" size={18} filled /></span>{t.reviews}</h2>
@@ -250,6 +257,36 @@ function TopsPanel() {
       </ol>
     </section>
   );
+}
+
+const overflows = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+
+/**
+ * Fit to the box: while the block overflows, add compaction steps fit-1, fit-2… (defined in app.css) one by one.
+ * Re-run when the block is resized (window resize, layout change), when fonts load and when `deps` change.
+ * Works for any window size, instead of relying on fixed breakpoints only.
+ */
+function useFit<T extends HTMLElement>(steps: number, deps: DependencyList) {
+  const ref = useRef<T>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const fit = () => {
+      for (let n = 1; n <= steps; n++) el.classList.remove('fit-' + n);
+      for (let n = 1; n <= steps && overflows(el); n++) el.classList.add('fit-' + n);
+    };
+    // Fit now, then once more after the resize settles (viewport units and grid rows update a little later).
+    let timer = 0;
+    const refit = () => { fit(); window.clearTimeout(timer); timer = window.setTimeout(fit, 150); };
+    fit();
+    const ro = new ResizeObserver(refit);
+    ro.observe(el);
+    window.addEventListener('resize', refit);
+    document.fonts?.ready.then(fit);
+    return () => { ro.disconnect(); window.removeEventListener('resize', refit); window.clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return ref;
 }
 
 /**
