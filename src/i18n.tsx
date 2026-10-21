@@ -189,6 +189,32 @@ function initialLang(): Lang {
   return navigator.language?.toLowerCase().startsWith('fr') ? 'fr' : navigator.language ? 'en' : 'fr';
 }
 
+/**
+ * Market titles come from the calendar in French. In English, common phrases are translated
+ * ("Marché de Noël" → "Christmas market"); anything else (place names…) is kept as typed.
+ * Longer phrases first, so "marché de Noël des créateurs" is matched before "marché de Noël".
+ */
+const TITLE_EN: [RegExp, string][] = [
+  [/march[ée] de no[ëe]l (des|de) cr[ée]ateurs/gi, "Christmas makers' market"],
+  [/march[ée] de no[ëe]l artisanal/gi, 'Christmas craft market'],
+  [/march[ée] de no[ëe]l/gi, 'Christmas market'],
+  [/village de no[ëe]l/gi, 'Christmas village'],
+  [/march[ée] (des|de) cr[ée]ateurs et artisans/gi, "Makers' and craft market"],
+  [/march[ée] (des|de) cr[ée]ateurs/gi, "Makers' market"],
+  [/march[ée] (des|de) cr[ée]ations/gi, "Makers' market"],
+  [/march[ée] artisanal/gi, 'Craft market'],
+  [/march[ée] (des|de) producteurs/gi, "Farmers' market"],
+  [/salon (des|de) cr[ée]ateurs/gi, "Makers' fair"],
+  [/\bd['’]automne\b/gi, '(autumn)'],
+  [/\bde printemps\b/gi, '(spring)'],
+  [/\bd['’][ée]t[ée]\b/gi, '(summer)'],
+  [/\bmarch[ée]\b/gi, 'market'],
+];
+const translateTitle = (title: string) => {
+  const out = TITLE_EN.reduce((t, [re, en]) => t.replace(re, en), title).replace(/\s+/g, ' ').trim();
+  return out.charAt(0).toUpperCase() + out.slice(1);
+};
+
 /** Parses "YYYY-MM-DD" (or "YYYY-MM") at noon local time, so formatting never shifts the day. */
 const parseIso = (iso: string) => new Date(iso.length === 7 ? iso + '-01T12:00:00' : iso + 'T12:00:00');
 
@@ -241,6 +267,8 @@ function makeI18n(lang: Lang) {
       if (e.endTime) return `${one(e.startTime)} – ${one(e.endTime)}`;
       return lang === 'fr' ? `dès ${one(e.startTime)}` : `from ${one(e.startTime)}`;
     },
+    /** Market title in the current language (see TITLE_EN). */
+    title: (title: string) => (lang === 'en' ? translateTitle(title) : title),
     /** Day range of an event: "4–6", or "30 nov. – 2 déc." across months. */
     dayRange: (e: { date: string; end?: string }) => {
       const d = (iso: string) => Number(iso.slice(8, 10));

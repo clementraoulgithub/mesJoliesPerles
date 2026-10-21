@@ -411,7 +411,7 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
       <article className={'dash-next is-' + next.kind + (showImg ? ' has-img' : '')}>
         {showImg ? (
           <div className="dash-next-visual">
-            <img src={next.image} alt={t.poster(next.title)} onError={() => setImgFailed(true)} />
+            <img src={next.image} alt={t.poster(i18n.title(next.title))} onError={() => setImgFailed(true)} />
             <span className="dash-next-chip"><span className="dash-next-chip-dow">{i18n.weekdayShort(next.date)} </span>{i18n.dayRange(next)} {i18n.monthShort(next.end ?? next.date)}</span>
           </div>
         ) : (
@@ -423,7 +423,7 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
         )}
         <div className="dash-next-body">
           <span className="dash-next-when"><Badge tone={next.kind}>{countdown(next)}</Badge></span>
-          <h3 className="dash-next-title">{next.title}</h3>
+          <h3 className="dash-next-title">{i18n.title(next.title)}</h3>
           {(next.city || next.place) && (
             <span className="dash-next-meta dash-next-where">
               <Icon name="pin" size={14} />
@@ -441,7 +441,7 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
           {rest.slice(0, 2).map(e => (
             <li key={e.id}>
               <span className={'dash-event-date is-' + e.kind}>{i18n.dayRange(e)} {i18n.monthShort(e.end ?? e.date)}</span>
-              <span className="dash-event-title">{e.title}</span>
+              <span className="dash-event-title">{i18n.title(e.title)}</span>
               <span className="dash-event-meta">{e.city}</span>
             </li>
           ))}

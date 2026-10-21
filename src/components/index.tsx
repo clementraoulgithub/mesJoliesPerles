@@ -188,7 +188,7 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
               <button key={i} type="button" role="gridcell" disabled={!evs.length}
                 className={cx('jp-cal-cell', kind && 'has-' + kind, selected === day && 'is-selected', day === now && 'is-today', day < now && 'is-past')}
                 aria-pressed={evs.length ? selected === day : undefined}
-                aria-label={`${i18n.dayMonth(day)}${evs.length ? ' : ' + evs.map(e => e.title).join(', ') : ''}`}
+                aria-label={`${i18n.dayMonth(day)}${evs.length ? ' : ' + evs.map(e => i18n.title(e.title)).join(', ') : ''}`}
                 onClick={() => setSelected(s => (s === day ? null : day))}>
                 <span>{d}</span>
                 {kind && <span className="jp-cal-mark" aria-hidden="true" />}
@@ -212,7 +212,7 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
               </span>
               <span className="jp-event-body">
                 <Badge tone={e.kind}>{kindLabel(e.kind)}</Badge>
-                <span className="jp-event-title">{e.title}</span>
+                <span className="jp-event-title">{i18n.title(e.title)}</span>
                 <span className="jp-event-meta"><Icon name="calendar" size={15} />{range(e)}</span>
                 <span className="jp-event-meta"><Icon name="pin" size={15} />{[e.place, e.city].filter(Boolean).join(', ')}</span>
                 {e.startTime && <span className="jp-event-meta"><Icon name="clock" size={15} />{i18n.hours(e)}</span>}
