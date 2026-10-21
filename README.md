@@ -77,6 +77,10 @@ The ✉ button ("Follow me" block) opens a form sent through [Formspree](https:/
 
 This id is public: it only allows sending a message. Without an id, the form is shown but the send button stays disabled. An invisible field traps bots, and Formspree filters spam too.
 
+## Link previews
+
+`index.html` holds the Open Graph tags read by WhatsApp, Facebook, iMessage, LinkedIn… (title, description, `public/og-image.jpg` at 1200×630). Link previews need absolute URLs: `%SITE_URL%` is filled in at build time with Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`). With a custom domain, set the Vercel variable `SITE_URL` (e.g. `https://www.lesjoliesperles.fr`).
+
 ## Live Instagram posts
 
 The "Follow me" block shows the latest Instagram posts, read on every visit from a [Behold](https://behold.so) feed (`src/hooks/useInstagramFeed.ts`). The number of followers in the introduction comes from the same feed.
