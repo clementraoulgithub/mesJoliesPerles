@@ -97,7 +97,7 @@ function toMarkets(ev: VEvent): MarketEvent[] {
   const span = Math.max(0, Math.round((Date.parse(lastDay) - Date.parse(start.date)) / DAY));
   const uid = one('UID')?.value ?? title + start.date;
 
-  // Simple repeats: weekly / monthly (RRULE FREQ=WEEKLY|MONTHLY, INTERVAL, COUNT, UNTIL), minus EXDATEs.
+  // Simple repeats: daily / weekly / monthly (RRULE FREQ=DAILY|WEEKLY|MONTHLY, INTERVAL, COUNT, UNTIL), minus EXDATEs.
   const dates = [start.date];
   const rrule = one('RRULE')?.value;
   if (rrule) {
@@ -107,7 +107,8 @@ function toMarkets(ev: VEvent): MarketEvent[] {
     const until = r.UNTIL ? `${r.UNTIL.slice(0, 4)}-${r.UNTIL.slice(4, 6)}-${r.UNTIL.slice(6, 8)}` : addDays(start.date, 540);
     for (let i = 1; dates.length < count; i++) {
       let next: string;
-      if (r.FREQ === 'WEEKLY') next = addDays(start.date, 7 * step * i);
+      if (r.FREQ === 'DAILY') next = addDays(start.date, step * i);
+      else if (r.FREQ === 'WEEKLY') next = addDays(start.date, 7 * step * i);
       else if (r.FREQ === 'MONTHLY') { const d = new Date(start.date + 'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth() + step * i); next = d.toISOString().slice(0, 10); }
       else break;
       if (next > until) break;

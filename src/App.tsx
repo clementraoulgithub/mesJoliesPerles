@@ -13,7 +13,6 @@ import { formspreeId } from './data/site';
 import { reviews, reviewsSummary } from './data/reviews';
 
 const today = () => new Date().toISOString().slice(0, 10);
-const day = (iso: string) => Number(iso.slice(8, 10));
 
 /** One-screen page: introduction and best sellers on top; reviews, markets and Instagram below. */
 export default function App() {
@@ -83,7 +82,7 @@ export default function App() {
             <h2 id="h-agenda" className="dash-h"><span className="dash-h-icon"><Icon name="calendar" size={18} /></span>{t.nextMarkets}</h2>
             <button type="button" className="dash-link" onClick={() => setCalendarOpen(true)}><Icon name="calendar" size={15} />{t.calendar}</button>
           </div>
-          <NextMarkets events={events} />
+          {agenda.status === 'loading' ? <MarketsLoading /> : <NextMarkets events={events} />}
         </section>
 
         <section className="dash-panel dash-insta" aria-labelledby="h-insta">
@@ -126,7 +125,7 @@ export default function App() {
       </footer>
 
       <Dialog title={t.calendarTitle} open={calendarOpen} onClose={() => setCalendarOpen(false)}>
-        <MarketCalendar key={agenda.status} events={events} />
+        {agenda.status === 'loading' ? <MarketsLoading /> : <MarketCalendar key={agenda.status} events={events} />}
       </Dialog>
 
       <Dialog title={t.contact} narrow open={contactOpen} onClose={() => setContactOpen(false)}>
@@ -355,7 +354,16 @@ function withImages(events: MarketEvent[], posts: Post[]): MarketEvent[] {
   });
 }
 
-const dayRange = (e: MarketEvent) => day(e.date) + (e.end && e.end !== e.date ? '–' + day(e.end) : '');
+
+/** Placeholder while the calendar loads: avoids flashing "new dates coming soon" before the real dates arrive. */
+function MarketsLoading() {
+  const { t } = useI18n();
+  return (
+    <div className="dash-loading" role="status" aria-label={t.loadingDates}>
+      <span className="dash-loading-card" aria-hidden="true"><i /><span><b /><b /><b /></span></span>
+    </div>
+  );
+}
 
 /** The next market as a card, the following two as a list; with no upcoming date, the towns already visited. */
 function NextMarkets({ events }: { events: MarketEvent[] }) {
@@ -397,20 +405,20 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
   }
 
   const [next, ...rest] = upcoming;
-  const hours = i18n.hours(next.startTime, next.endTime);
+  const hours = i18n.hours(next);
   return (
     <>
       <article className={'dash-next is-' + next.kind + (showImg ? ' has-img' : '')}>
         {showImg ? (
           <div className="dash-next-visual">
             <img src={next.image} alt={t.poster(next.title)} onError={() => setImgFailed(true)} />
-            <span className="dash-next-chip"><span className="dash-next-chip-dow">{i18n.weekdayShort(next.date)} </span>{dayRange(next)} {i18n.monthShort(next.date)}</span>
+            <span className="dash-next-chip"><span className="dash-next-chip-dow">{i18n.weekdayShort(next.date)} </span>{i18n.dayRange(next)} {i18n.monthShort(next.end ?? next.date)}</span>
           </div>
         ) : (
           <div className="dash-next-date" aria-hidden="true">
             <span className="dash-next-dow">{i18n.weekdayShort(next.date)}</span>
-            <span className="dash-next-day">{dayRange(next)}</span>
-            <span className="dash-next-mon">{i18n.monthShort(next.date)}</span>
+            <span className="dash-next-day">{i18n.dayRange(next)}</span>
+            <span className="dash-next-mon">{i18n.monthShort(next.end ?? next.date)}</span>
           </div>
         )}
         <div className="dash-next-body">
@@ -432,7 +440,7 @@ function NextMarkets({ events }: { events: MarketEvent[] }) {
         <ul className="dash-events">
           {rest.slice(0, 2).map(e => (
             <li key={e.id}>
-              <span className={'dash-event-date is-' + e.kind}>{dayRange(e)} {i18n.monthShort(e.date)}</span>
+              <span className={'dash-event-date is-' + e.kind}>{i18n.dayRange(e)} {i18n.monthShort(e.end ?? e.date)}</span>
               <span className="dash-event-title">{e.title}</span>
               <span className="dash-event-meta">{e.city}</span>
             </li>

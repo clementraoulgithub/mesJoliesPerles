@@ -44,6 +44,7 @@ const fr = {
   nextMarkets: 'Prochains marchés',
   calendar: 'Calendrier',
   calendarTitle: 'Calendrier des marchés',
+  loadingDates: 'Chargement des dates…',
   noMarketTitle: 'Prochaines dates en préparation',
   noMarketText: 'Les nouvelles dates sont annoncées sur Instagram. Les boutiques en ligne restent ouvertes.',
   alreadyIn: 'Déjà passée par',
@@ -130,6 +131,7 @@ const en: Messages = {
   nextMarkets: 'Upcoming markets',
   calendar: 'Calendar',
   calendarTitle: 'Market calendar',
+  loadingDates: 'Loading dates…',
   noMarketTitle: 'New dates coming soon',
   noMarketText: 'New dates are announced on Instagram. The online shops stay open.',
   alreadyIn: 'Previously in',
@@ -220,17 +222,31 @@ function makeI18n(lang: Lang) {
     dayMonth: (iso: string) => dayMonth.format(parseIso(iso)),
     /** "samedi 18 juillet" / "Saturday 18 July" */
     fullDay: (iso: string) => fullDay.format(parseIso(iso)),
-    /** Opening hours from "HH:MM" times: "10h – 18h" / "dès 9h", "10am – 6pm" / "from 9am". */
-    hours: (start?: string, end?: string) => {
-      if (!start) return undefined;
+    /**
+     * Opening hours of an event from "HH:MM" times.
+     * One day: "10h – 18h" / "dès 9h" ("10am – 6pm" / "from 9am").
+     * Several days entered as one block: only the first opening and the last closing are known,
+     * so the real span is shown: "ven. 17h → dim. 18h" ("Fri 5pm → Sun 6pm").
+     */
+    hours: (e: { date: string; end?: string; startTime?: string; endTime?: string }) => {
+      if (!e.startTime) return undefined;
       const one = (hm: string) => {
         const [h, m] = hm.split(':').map(Number);
         if (lang === 'fr') return `${h}h${m ? String(m).padStart(2, '0') : ''}`;
         const h12 = h % 12 || 12;
         return `${h12}${m ? ':' + String(m).padStart(2, '0') : ''}${h < 12 ? 'am' : 'pm'}`;
       };
-      if (end) return `${one(start)} – ${one(end)}`;
-      return lang === 'fr' ? `dès ${one(start)}` : `from ${one(start)}`;
+      const dow = (iso: string) => weekdayShort.format(parseIso(iso));
+      if (e.end && e.end !== e.date && e.endTime) return `${dow(e.date)} ${one(e.startTime)} → ${dow(e.end)} ${one(e.endTime)}`;
+      if (e.endTime) return `${one(e.startTime)} – ${one(e.endTime)}`;
+      return lang === 'fr' ? `dès ${one(e.startTime)}` : `from ${one(e.startTime)}`;
+    },
+    /** Day range of an event: "4–6", or "30 nov. – 2 déc." across months. */
+    dayRange: (e: { date: string; end?: string }) => {
+      const d = (iso: string) => Number(iso.slice(8, 10));
+      if (!e.end || e.end === e.date) return String(d(e.date));
+      if (e.end.slice(0, 7) === e.date.slice(0, 7)) return `${d(e.date)}–${d(e.end)}`;
+      return `${d(e.date)} ${monthShort.format(parseIso(e.date))} – ${d(e.end)}`;
     },
   };
 }

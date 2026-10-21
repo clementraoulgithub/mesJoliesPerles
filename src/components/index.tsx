@@ -207,15 +207,15 @@ export function MarketCalendar({ events, initialMonth, today }: MarketCalendarPr
           {list.map(e => (
             <li key={e.id} className={cx('jp-event', (e.end ?? e.date) < now && 'is-past', e.image && 'has-img')}>
               <span className={'jp-event-date jp-event-date-' + e.kind}>
-                <span className="jp-event-day">{dayOf(e.date)}</span>
-                <span className="jp-event-mon">{i18n.monthShort(e.date)}</span>
+                <span className="jp-event-day">{i18n.dayRange(e)}</span>
+                <span className="jp-event-mon">{i18n.monthShort(e.end ?? e.date)}</span>
               </span>
               <span className="jp-event-body">
                 <Badge tone={e.kind}>{kindLabel(e.kind)}</Badge>
                 <span className="jp-event-title">{e.title}</span>
                 <span className="jp-event-meta"><Icon name="calendar" size={15} />{range(e)}</span>
                 <span className="jp-event-meta"><Icon name="pin" size={15} />{[e.place, e.city].filter(Boolean).join(', ')}</span>
-                {e.startTime && <span className="jp-event-meta"><Icon name="clock" size={15} />{i18n.hours(e.startTime, e.endTime)}</span>}
+                {e.startTime && <span className="jp-event-meta"><Icon name="clock" size={15} />{i18n.hours(e)}</span>}
                 {(e.place || e.city) && (
                   <a className="jp-event-link" href={mapsUrl(e)} target="_blank" rel="noopener noreferrer">
                     {t.directions} <Icon name="arrow-up-right" size={14} />
