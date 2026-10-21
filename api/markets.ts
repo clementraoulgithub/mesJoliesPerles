@@ -9,7 +9,8 @@
  *   title       → market name; "Noël" in the title makes it a Christmas market
  *   location    → "Salle des fêtes, 1 rue …, 44119 Treillières, France": first part = venue, city taken from the postcode
  *   times       → start and end times; an all-day event shows no hours
- *   description → a link to the market's picture (direct image, Google Drive share, Instagram or Facebook post)
+ *   attachment  → an image attached to the event (stored on Google Drive, shared with "Anyone with the link")
+ *   description → otherwise, a link to the market's picture (direct image, Google Drive share, Instagram or Facebook post)
  */
 
 declare const process: { env: Record<string, string | undefined> };
@@ -64,7 +65,8 @@ export function imageLink(description: string): string | undefined {
   const url = description.match(/https?:\/\/[^\s"'<>]+/)?.[0]?.replace(/[).,;]+$/, '').replace(/&amp;/g, '&');
   if (!url) return undefined;
   const drive = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
-  return drive ? `https://drive.google.com/thumbnail?id=${drive[1]}&sz=w1200` : url;
+  // Drive pictures go through /api/image (cached), see api/image.ts
+  return drive ? '/api/image?u=' + encodeURIComponent(`https://drive.google.com/thumbnail?id=${drive[1]}&sz=w1200`) : url;
 }
 
 const addDays = (iso: string, n: number) => new Date(Date.parse(iso + 'T00:00:00Z') + n * DAY).toISOString().slice(0, 10);
@@ -89,7 +91,9 @@ function toMarkets(ev: VEvent): MarketEvent[] {
   const { place, city } = splitLocation(unescape(one('LOCATION')?.value ?? ''));
   const kind = /no[eë]l/i.test(title + ' ' + (one('CATEGORIES')?.value ?? '')) ? 'noel' : 'local';
   const url = one('URL')?.value;
-  const image = imageLink(unescape(one('DESCRIPTION')?.value ?? ''));
+  // Picture: an image attached to the event first (Google Calendar stores it on Drive), else a link in the description.
+  const attached = (ev.ATTACH ?? []).find(a => /^image\//i.test(a.params.FMTTYPE ?? '') || /\.(jpe?g|png|webp|gif|heic)$/i.test(a.params.FILENAME ?? ''));
+  const image = (attached && imageLink(attached.value)) ?? imageLink(unescape(one('DESCRIPTION')?.value ?? ''));
   const base = {
     title, place, city, kind, href: url, image,
     startTime: start.time, endTime: start.time ? end?.time : undefined,

@@ -56,7 +56,8 @@ In the calendar, one event = one market:
 - **Title**: the market name. If it contains "Noël", it is a Christmas market.
 - **Location**: "Salle Simone de Beauvoir, 12 rue …, 44119 Treillières". The site shows the venue and the town.
 - **Times**: start and end of the event. "All day" shows no hours; over several days, the market covers every day.
-- **Description**: a link to the market's picture (poster, photo of the stand): a direct image link, a Google Drive share link (shared with "Anyone with the link") or a link to a public Instagram or Facebook post (e.g. `https://www.facebook.com/share/p/…`).
+- **Attachment**: an image attached to the event becomes the market's picture. Google Calendar stores it on Google Drive: share the file with "Anyone with the link" (Viewer), otherwise visitors cannot see it.
+- **Description**: otherwise, a link to the market's picture (poster, photo of the stand): a direct image link, a Google Drive share link (shared with "Anyone with the link") or a link to a public Instagram or Facebook post (e.g. `https://www.facebook.com/share/p/…`).
 - "Weekly" and "monthly" repeats are supported; cancelled events are ignored.
 
 One-time setup:
