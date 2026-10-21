@@ -1,96 +1,107 @@
-# Les Jolies Perles — site vitrine
+# Les-jolies-perles — showcase website
 
-Site vitrine d'une page (SPA) en React 18 + TypeScript + Vite.
+One-screen showcase site for a handmade costume jewellery maker, built with React 18 + TypeScript + Vite and deployed on Vercel. The site is bilingual (French / English).
 
-## Démarrer
+## Getting started
 
-Il faut Node.js 18 ou plus récent.
+Requires Node.js 18 or later.
 
 ```bash
 npm install
-npm run dev       # site en local sur http://localhost:5173
-npm run build     # version de production dans dist/
-npm run preview   # tester la version de production
+npm run dev       # local site on http://localhost:5173
+npm run build     # production build in dist/
+npm run preview   # preview the production build
 ```
 
-Le dossier `dist/` produit par `npm run build` se dépose tel quel sur n'importe quel hébergement statique (Netlify, Vercel, GitHub Pages, OVH…).
+`npm run build` outputs a static site in `dist/`. The two serverless functions in `api/` (markets calendar, image proxy) run on Vercel; `npm run dev` serves them locally too.
 
-## Où modifier quoi
+## Where to change what
 
-| Je veux changer…                    | Fichier                      |
-| ----------------------------------- | ---------------------------- |
-| Les liens des boutiques             | `src/data/shops.ts`          |
-| Les tops ventes (Etsy et UGM)       | `src/data/products.ts`       |
-| Les dates des marchés               | l'agenda des marchés (voir plus bas) |
-| Les comptes et le flux Instagram    | `src/data/social.ts`         |
-| Les avis et la note moyenne         | `src/data/reviews.ts`        |
-| Le formulaire de contact (Formspree) | `src/data/site.ts`          |
-| Les textes de la page               | `src/App.tsx`                |
-| Les couleurs, espacements, polices  | `src/styles/tokens.css`      |
+| I want to change…                     | File                                   |
+| ------------------------------------- | -------------------------------------- |
+| Shop links                            | `src/data/shops.ts`                    |
+| Best sellers (Etsy and Un grand marché) | `src/data/products.ts`               |
+| Market dates                          | the markets calendar (see below)       |
+| Social accounts and Instagram feed    | `src/data/social.ts`                   |
+| Reviews, rating, number of sales      | `src/data/reviews.ts`                  |
+| Contact form (Formspree)              | `src/data/site.ts`                     |
+| Page texts (French and English)       | `src/i18n.tsx`                         |
+| Colours, spacing, fonts               | `src/styles/tokens.css`                |
 
-Les produits, dates, publications, avis et comptes sociaux livrés ici sont des **exemples** : remplacez-les par les vrais avant la mise en ligne.
+## Languages
 
-### Mettre à jour depuis les boutiques
+All interface texts live in `src/i18n.tsx`, in a French dictionary (`fr`) and an English one (`en`) with the same keys; TypeScript reports any missing translation. Dates, months, weekdays, numbers and opening hours are formatted with `Intl` for the current language.
+
+- The **FR | EN** switch, next to the tagline in the introduction block, changes the language; the choice is saved in the browser.
+- On a first visit, the site follows the browser language (French unless the browser is set to another language).
+- Data with a translation: product names (`nameEn` in `products.ts`), customer reviews and reviewed product names (`textEn`, `productEn` in `reviews.ts`). In English, reviews show their translation with a "Translated from French" note.
+- Market titles and places come from the calendar as typed.
+
+## Updating from the shops
 
 ```bash
 python3 scripts/fetch_shops.py
 ```
 
-Récupère la note, les avis, les ventes, le logo et les photos d'Un grand marché, les 10 dernières fiches Etsy (flux RSS) et le profil Instagram. Les données brutes vont dans `sources/`, les images dans `public/marque/` et `public/produits/`. Recopiez ensuite ce qui vous intéresse dans `src/data/`.
+Fetches the rating, reviews, sales, logo and photos from Un grand marché, the 10 latest Etsy listings (RSS feed) and the Instagram profile. Raw data goes to `sources/`, images to `public/marque/` and `public/produits/`. Then copy what you need into `src/data/`.
 
-### Photos
+Etsy blocks automated access: Etsy reviews and best sellers are copied by hand into `src/data/`.
 
-Déposez les photos dans `public/` (par exemple `public/produits/boucles-miel.jpg`) et indiquez `imageSrc: '/produits/boucles-miel.jpg'` sur le produit, la story ou la publication. Sans photo, un collier dessiné (`BeadArt`) s'affiche à la place.
+## Markets
 
-### Marchés
+Dates come from a calendar (Google Calendar, Apple Calendar, Outlook…) read by the Vercel function `api/markets.ts`. No code change needed: add an event to the calendar and it shows up on the site 10 to 20 minutes later.
 
-Les dates viennent d'un agenda (Google Agenda, Apple Calendrier, Outlook…) lu par la fonction Vercel `api/markets.ts`. Pas besoin de toucher au code : on ajoute un événement dans l'agenda, il apparaît sur le site 10 à 20 minutes plus tard.
+In the calendar, one event = one market:
 
-Dans l'agenda, un événement = un marché :
+- **Title**: the market name. If it contains "Noël", it is a Christmas market.
+- **Location**: "Salle Simone de Beauvoir, 12 rue …, 44119 Treillières". The site shows the venue and the town.
+- **Times**: start and end of the event. "All day" shows no hours; over several days, the market covers every day.
+- **Description**: a link to the market's picture (poster, photo of the stand): a direct image link, a Google Drive share link (shared with "Anyone with the link") or a link to a public Instagram or Facebook post (e.g. `https://www.facebook.com/share/p/…`).
+- "Weekly" and "monthly" repeats are supported; cancelled events are ignored.
 
-- **Titre** : le nom du marché. S'il contient « Noël », c'est un marché de Noël.
-- **Lieu** : « Salle Simone de Beauvoir, 12 rue …, 44119 Treillières ». Le site affiche le lieu et la ville.
-- **Horaires** : début et fin de l'événement. « Toute la journée » n'affiche pas d'horaire ; sur plusieurs jours, le marché couvre tous les jours.
-- **Description** : un lien vers l'image du marché (affiche, photo du stand). Au choix : lien direct vers une image, lien de partage Google Drive (partagé à « Tous les utilisateurs disposant du lien ») ou lien d'une publication Instagram ou Facebook publique (ex. `https://www.facebook.com/share/p/…`).
-- Les répétitions « chaque semaine » et « chaque mois » sont prises en compte, les événements annulés sont ignorés.
+One-time setup:
 
-Mise en place, une seule fois :
+1. Google Calendar: create a dedicated calendar, then *Calendar settings → Integrate calendar* and copy the **secret address in iCal format**.
+2. Vercel: *Settings → Environment Variables*, add `MARKETS_ICS_URL` with that address, then redeploy.
 
-1. Google Agenda : créez un agenda dédié (« Marchés Les Jolies Perles »), puis *Paramètres de l'agenda → Intégrer l'agenda* et copiez l'**adresse secrète au format iCal**.
-2. Vercel : *Settings → Environment Variables*, ajoutez `MARKETS_ICS_URL` avec cette adresse, puis redéployez.
+The address stays server-side, invisible to visitors. If the calendar does not answer, the site shows the fallback list in `src/data/markets.ts`. Locally, put `MARKETS_ICS_URL=…` in `.env.local` so that `npm run dev` reads the calendar.
 
-Image absente sur le site en ligne ? Ouvrez `/api/markets?debug` : il indique, pour chaque lien Facebook ou Instagram, ce que la plateforme a répondu. Les images Facebook et Instagram passent par `/api/image`, car certaines ne s'affichent que pour les robots d'aperçu de lien.
+Missing picture on the live site? Open `/api/markets?debug`: for each Facebook or Instagram link, it shows what the platform answered. Facebook and Instagram pictures go through `/api/image`, because some of them are only served to link-preview crawlers.
 
-L'adresse reste côté serveur, invisible des visiteurs. Si l'agenda ne répond pas, le site affiche la liste de secours de `src/data/markets.ts`. En local, mettez `MARKETS_ICS_URL=…` dans `.env.local` pour que `npm run dev` lise l'agenda.
+## Contact form
 
-### Formulaire de contact
+The ✉ button ("Follow me" block) opens a form sent through [Formspree](https://formspree.io): each message arrives by email, with the visitor's address as "Reply-To".
 
-Le bouton ✉ (présentation et « Suivez-moi ») ouvre un formulaire envoyé par [Formspree](https://formspree.io) : chaque message arrive par e-mail.
+1. On formspree.io, create a form with the email address that should receive the messages. Formspree gives an address like `https://formspree.io/f/xxxxxxxx`.
+2. Put `xxxxxxxx` in `src/data/site.ts` (`formspreeId`), or in the Vercel variable `VITE_FORMSPREE_ID`, then redeploy.
 
-1. Sur formspree.io, créez un formulaire avec l'adresse e-mail qui doit recevoir les messages. Formspree donne une adresse du type `https://formspree.io/f/xxxxxxxx`.
-2. Mettez `xxxxxxxx` dans `src/data/site.ts` (`formspreeId`), ou dans la variable Vercel `VITE_FORMSPREE_ID`, puis redéployez.
+This id is public: it only allows sending a message. Without an id, the form is shown but the send button stays disabled. An invisible field traps bots, and Formspree filters spam too.
 
-Cet identifiant est public : il permet seulement d'envoyer un message. Un champ invisible piège les robots, et Formspree filtre aussi le spam.
+## Live Instagram posts
 
-### Publications Instagram en direct
+The "Follow me" block shows the latest Instagram posts, read on every visit from a [Behold](https://behold.so) feed (`src/hooks/useInstagramFeed.ts`). The number of followers in the introduction comes from the same feed.
 
-La section « Sur nos réseaux » affiche les dernières publications Instagram, lues à chaque visite depuis un flux [Behold](https://behold.so) (`src/hooks/useInstagramFeed.ts`).
+1. Create an account on behold.so, connect the `@les_joliesperles` Instagram account and create a **JSON** feed. Behold gives a URL like `https://feeds.behold.so/xxxxxxxx`.
+2. The URL is set in `src/data/social.ts`. To change it without touching the code: in Vercel, *Settings → Environment Variables*, add `VITE_INSTAGRAM_FEED` with the new URL, then redeploy.
 
-1. Créez un compte sur behold.so, connectez le compte Instagram `@les_joliesperles` et créez un flux **JSON**. Behold donne une URL du type `https://feeds.behold.so/xxxxxxxx`.
-2. L'URL est réglée dans `src/data/social.ts`. Pour en changer sans toucher au code : dans Vercel, *Settings → Environment Variables*, ajoutez `VITE_INSTAGRAM_FEED` avec la nouvelle URL, puis redéployez.
-
-L'URL du flux est publique : elle ne donne accès à rien d'autre que les publications. Sans URL, ou si Behold ne répond pas, la section affiche un lien vers le compte Instagram.
+The feed URL is public: it gives access to nothing but the posts.
 
 ## Structure
 
 ```
+api/
+  markets.ts              Vercel function: reads the markets calendar (ICS) and post pictures
+  image.ts                Vercel function: proxy for Facebook / Instagram pictures
 src/
-  App.tsx                 la page sur un seul écran : boutiques, créatrice, avis, tops ventes, marchés, Instagram
-  components/index.tsx    les composants du design system (Button, MarketCalendar, StoryRow…)
-  components/StoryViewer.tsx  visionneuse plein écran des stories
-  hooks/useActiveSection.ts   souligne dans le menu la section affichée
-  data/                   le contenu à mettre à jour
-  styles/tokens.css       jetons de design (couleurs, espacements…)
-  styles/components.css   styles des composants
-  styles/app.css          styles propres à la page
+  App.tsx                 the one-screen page: introduction, best sellers, reviews, markets, Instagram, dialogs
+  i18n.tsx                French and English texts, language switch, date and number formatting
+  components/index.tsx    shared components (Icon, Badge, Rating, MarketCalendar) and data types
+  components/ContactForm.tsx  Formspree contact form
+  components/BrandIcon.tsx    Instagram, Facebook, Pinterest, Etsy and Un grand marché logos
+  hooks/                  Instagram feed and markets calendar loading
+  data/                   content to keep up to date
+  styles/tokens.css       design tokens (colours, spacing…)
+  styles/components.css   component styles
+  styles/app.css          page layout
+scripts/fetch_shops.py    fetches public data from the shops
 ```

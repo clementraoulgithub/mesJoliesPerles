@@ -1,4 +1,4 @@
-/* Les Jolies Perles — jetons de design (couleurs, espacements, rayons, polices). */
+/* Les-jolies-perles — design tokens (colours, spacing, radii, fonts). */
 :root {
   --nacre: #fbf7f1;
   --nacre-raised: #ffffff;
@@ -36,7 +36,7 @@
   --radius-pill: 999px;
   --font-display: "Cormorant Garamond", "Cormorant", Georgia, serif;
   --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
-  /* Mouvements : courbe douce (décélération), durées courte et normale */
+  /* Motion: smooth (decelerating) curve, short and normal durations */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur-fast: 0.2s;
   --dur: 0.5s;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { MarketEvent } from '../components';
 
-/** Dates des marchés lues dans l'agenda (/api/markets). Garde `fallback` si l'agenda ne répond pas. */
+/** Market dates read from the calendar (/api/markets). Keeps `fallback` when the calendar does not answer. */
 export function useMarkets(fallback: MarketEvent[]) {
   const [state, setState] = useState<{ events: MarketEvent[]; status: 'loading' | 'live' | 'fallback' }>(
     { events: fallback, status: 'loading' },

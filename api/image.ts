@@ -1,9 +1,9 @@
 /**
- * GET /api/image?u=<adresse> : relais pour les images de publications Facebook / Instagram.
+ * GET /api/image?u=<address>: proxy for pictures of Facebook / Instagram posts.
  *
- * Certaines adresses d'images Facebook (lookaside.fbsbx.com/…/crawler/…) ne servent l'image qu'aux robots
- * d'aperçu de lien ; un navigateur y reçoit une page HTML. Cette fonction va chercher l'image comme un robot
- * et la renvoie au navigateur. Seuls les domaines d'images Facebook et Instagram sont acceptés.
+ * Some Facebook image addresses (lookaside.fbsbx.com/…/crawler/…) only serve the picture to link-preview
+ * crawlers; a browser gets an HTML page instead. This function fetches the picture as a crawler and passes it
+ * on to the browser. Only Facebook and Instagram image domains are accepted.
  */
 
 const ALLOWED = /(^|\.)(fbcdn\.net|fbsbx\.com|cdninstagram\.com)$/;
@@ -13,25 +13,25 @@ export function GET(request: Request) {
   return imageResponse(new URL(request.url).searchParams.get('u'));
 }
 
-/** Utilisé par Vercel (GET) et par le serveur local (vite.config.ts). */
+/** Used by Vercel (GET) and by the local dev server (vite.config.ts). */
 export async function imageResponse(target: string | null) {
   let url: URL;
   try {
     url = new URL(target ?? '');
   } catch {
-    return new Response('Adresse invalide', { status: 400 });
+    return new Response('Invalid address', { status: 400 });
   }
-  if (url.protocol !== 'https:' || !ALLOWED.test(url.hostname)) return new Response('Domaine non autorisé', { status: 403 });
+  if (url.protocol !== 'https:' || !ALLOWED.test(url.hostname)) return new Response('Domain not allowed', { status: 403 });
 
   try {
     const res = await fetch(url, { headers: { 'User-Agent': AGENT }, signal: AbortSignal.timeout(8000) });
     const type = res.headers.get('content-type') ?? '';
-    if (!res.ok || !type.startsWith('image/')) return new Response('Image introuvable', { status: 502 });
-    // Cache 1 jour sur Vercel : l'image n'est pas redemandée à Facebook à chaque visite.
+    if (!res.ok || !type.startsWith('image/')) return new Response('Image not found', { status: 502 });
+    // One-day Vercel cache: the picture is not requested from Facebook on every visit.
     return new Response(res.body, {
       headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800' },
     });
   } catch {
-    return new Response('Image introuvable', { status: 502 });
+    return new Response('Image not found', { status: 502 });
   }
 }

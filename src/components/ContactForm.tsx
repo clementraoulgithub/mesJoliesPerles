@@ -1,17 +1,18 @@
 import { useState, type FormEvent } from 'react';
 import { Icon } from './index';
+import { useI18n } from '../i18n';
 
 /**
- * Formulaire de contact envoyé par Formspree (https://formspree.io) : le message arrive par e-mail à la créatrice.
- * L'identifiant du formulaire (« xxxxxxxx » dans https://formspree.io/f/xxxxxxxx) est public : il ne permet que d'envoyer un message.
+ * Contact form sent through Formspree (https://formspree.io): each message reaches the maker by email.
+ * The form id ("xxxxxxxx" in https://formspree.io/f/xxxxxxxx) is public: it only allows sending a message.
+ * Without an id the form is still shown, but the send button stays disabled.
  */
 export interface ContactFormProps { formId: string; onDone?: () => void }
-
-const SUBJECTS = ['Une question sur un bijou', 'Une commande sur mesure', 'Un marché ou un événement', 'Autre chose'];
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 export function ContactForm({ formId, onDone }: ContactFormProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
 
@@ -23,7 +24,7 @@ export function ContactForm({ formId, onDone }: ContactFormProps) {
     setError('');
     try {
       const body = new FormData(form);
-      // Adresse du visiteur en « Répondre à » : Formspree lit le champ « email » (et l'ancien nom « _replyto »).
+      // Visitor's address as "Reply-To": Formspree reads the "email" field (and the legacy "_replyto" name).
       body.set('_replyto', String(body.get('email') ?? ''));
       const res = await fetch(`https://formspree.io/f/${formId}`, {
         method: 'POST', body, headers: { Accept: 'application/json' },
@@ -45,9 +46,9 @@ export function ContactForm({ formId, onDone }: ContactFormProps) {
     return (
       <div className="jp-contact-done" role="status">
         <span className="jp-contact-done-icon"><Icon name="heart" size={24} filled /></span>
-        <p className="jp-contact-done-title">Merci, votre message est envoyé !</p>
-        <p>Je vous réponds dès que possible, en général sous 48 h.</p>
-        <button type="button" className="jp-btn jp-btn-secondary jp-btn-sm" onClick={onDone}>Fermer</button>
+        <p className="jp-contact-done-title">{t.sentTitle}</p>
+        <p>{t.sentText}</p>
+        <button type="button" className="jp-btn jp-btn-secondary jp-btn-sm" onClick={onDone}>{t.close}</button>
       </div>
     );
   }
@@ -56,40 +57,34 @@ export function ContactForm({ formId, onDone }: ContactFormProps) {
     <form className="jp-contact" onSubmit={submit}>
       <div className="jp-contact-row">
         <label className="jp-field">
-          <span>Nom</span>
+          <span>{t.name}</span>
           <input name="nom" autoComplete="name" required maxLength={100} autoFocus />
         </label>
         <label className="jp-field">
-          <span>E-mail</span>
+          <span>{t.email}</span>
           <input name="email" type="email" autoComplete="email" required maxLength={200} />
         </label>
       </div>
       <label className="jp-field">
-        <span>Sujet</span>
-        <select name="sujet" defaultValue={SUBJECTS[0]}>
-          {SUBJECTS.map(s => <option key={s}>{s}</option>)}
+        <span>{t.subject}</span>
+        <select name="sujet" key={t.subjects[0]} defaultValue={t.subjects[0]}>
+          {t.subjects.map(s => <option key={s}>{s}</option>)}
         </select>
       </label>
       <label className="jp-field">
-        <span>Message</span>
-        <textarea name="message" rows={5} required maxLength={5000} placeholder="Modèle, couleur, date souhaitée…" />
+        <span>{t.message}</span>
+        <textarea name="message" rows={5} required maxLength={5000} placeholder={t.messagePlaceholder} />
       </label>
-      {/* Piège à robots : champ invisible que Formspree ignore s'il est rempli. */}
+      {/* Bot trap: invisible field; Formspree discards the submission when it is filled. */}
       <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="jp-sr" aria-hidden="true" />
-      <input type="hidden" name="_subject" value="Nouveau message depuis le site Les-jolies-perles" />
+      <input type="hidden" name="_subject" value={t.emailSubject} />
 
-      {status === 'error' && (
-        <p className="jp-contact-error" role="alert">
-          L'envoi n'a pas abouti{error ? ` : ${error}` : ''}. Réessayez dans un instant.
-        </p>
-      )}
+      {status === 'error' && <p className="jp-contact-error" role="alert">{t.sendError(error)}</p>}
       <div className="jp-contact-actions">
-        <span className="jp-contact-note">
-          {formId ? 'Votre adresse ne sert qu\'à vous répondre.' : 'L\'envoi de messages sera bientôt disponible.'}
-        </span>
+        <span className="jp-contact-note">{formId ? t.emailUse : t.formSoon}</span>
         <button type="submit" className="jp-btn jp-btn-primary" disabled={!formId || status === 'sending'}
-          title={formId ? undefined : 'Formulaire pas encore configuré'}>
-          <Icon name="mail" size={18} />{status === 'sending' ? 'Envoi…' : 'Envoyer'}
+          title={formId ? undefined : t.formNotReady}>
+          <Icon name="mail" size={18} />{status === 'sending' ? t.sending : t.send}
         </button>
       </div>
     </form>

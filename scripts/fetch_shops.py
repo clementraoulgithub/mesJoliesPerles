@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
-"""Récupère les données publiques des boutiques Les Jolies Perles.
+"""Fetches the public data of the Les-jolies-perles shops.
 
   python3 scripts/fetch_shops.py
 
-Écrit :
-  sources/ugm_shop.json       infos + 1re page de produits Un grand marché
-  sources/ugm_reviews.json    tous les avis Un grand marché
-  sources/etsy_recent.json    dernières fiches Etsy (flux RSS)
-  sources/instagram.json      profil Instagram (compteurs, photo)
-  sources/top_ventes.json     modèles les plus commentés (approximation des ventes)
-  public/marque/              logo, bannière, photo de profil
-  public/produits/            photos produits
+Writes:
+  sources/ugm_shop.json       Un grand marché shop info + first page of products
+  sources/ugm_reviews.json    all Un grand marché reviews
+  sources/top_ventes.json     models with the most reviews (approximation of best sellers)
+  sources/etsy_recent.json    latest Etsy listings (RSS feed)
+  sources/instagram.json      Instagram profile (counters, picture)
+  public/marque/              logo, banner, profile picture
+  public/produits/            product photos
 
-Etsy bloque la lecture directe de la boutique (anti-robot) : seul le flux RSS
-(10 dernières fiches) est accessible. Les avis et ventes Etsy demandent l'API
-Etsy (clé développeur) ou un export manuel.
-Instagram ne donne sans connexion que le profil (abonnés, publications, photo).
+Etsy blocks automated access to the shop: only the RSS feed (10 latest listings) is readable.
+Etsy reviews and sales have to be copied by hand.
+Without logging in, Instagram only exposes the profile (followers, posts, picture).
 """
 import collections
 import html
@@ -141,7 +140,7 @@ def model_family(name):
 
 
 def top_sales(reviews, n=4):
-    """Les ventes par article ne sont pas publiques : on classe les modèles par nombre d'avis."""
+    """Per-item sales are not public: models are ranked by number of reviews."""
     families = collections.defaultdict(list)
     for r in reviews:
         if r['product']:
@@ -163,7 +162,7 @@ def top_sales(reviews, n=4):
     return top
 
 
-# ───────────── Etsy (flux RSS) ─────────────
+# ───────────── Etsy (RSS feed) ─────────────
 
 def etsy_recent():
     s = get(ETSY_RSS)
@@ -189,10 +188,10 @@ def etsy_recent():
     return items
 
 
-# ───────────── Instagram (profil public) ─────────────
+# ───────────── Instagram (public profile) ─────────────
 
 def instagram():
-    # Instagram ne sert les balises og: qu'aux robots d'aperçu de lien.
+    # Instagram only serves its og: tags to link-preview crawlers.
     s = get(INSTAGRAM, ua='facebookexternalhit/1.1')
     meta = {k: html.unescape(v) for k, v in re.findall(r'<meta property="og:(\w+)" content="([^"]*)"', s)}
     counts = re.search(r'([\d,.\s]+) followers, ([\d,.\s]+) (?:following|suivis), ([\d,.\s]+) (?:posts|publications)',
@@ -224,12 +223,12 @@ def main():
     save('top_ventes.json', top_sales(reviews))
     try:
         save('etsy_recent.json', etsy_recent())
-    except Exception as e:  # Etsy peut refuser l'accès
-        print('Etsy :', e, file=sys.stderr)
+    except Exception as e:  # Etsy may refuse access
+        print('Etsy:', e, file=sys.stderr)
     try:
         save('instagram.json', instagram())
     except Exception as e:
-        print('Instagram :', e, file=sys.stderr)
+        print('Instagram:', e, file=sys.stderr)
 
 
 if __name__ == '__main__':

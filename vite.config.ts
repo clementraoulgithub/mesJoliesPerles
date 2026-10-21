@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
-/** En local (npm run dev), sert /api/markets et /api/image comme le fera Vercel. Agenda : MARKETS_ICS_URL dans .env.local. */
+/** Local dev (npm run dev): serves /api/markets and /api/image like Vercel does. Calendar: MARKETS_ICS_URL in .env.local. */
 function marketsApi(icsUrl?: string): Plugin {
   return {
     name: 'markets-api',
